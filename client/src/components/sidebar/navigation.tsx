@@ -62,32 +62,33 @@ const Navigation = () => {
       className={`sidebar ${collapsed ? "collapsed" : "expanded"}`}
       rootStyles={{
         [`.${sidebarClasses.container}`]: {
-            backgroundColor: "#2B3241",
-            color: "#FFFFFF",
-            display: "flex",
-            flexDirection: "column",
-            position: "fixed",
-            justifyContent: "space-between",
-            padding: 0,
-            margin: 0,
-            height: "100vh",
-            transition: "width 0.3s ease",
+          backgroundColor: "#2B3241",
+          color: "#FFFFFF",
+          display: "flex",
+          flexDirection: "column",
+          position: "fixed",
+          justifyContent: "space-between",
+          padding: 0,
+          margin: 0,
+          height: "100vh",
+          width: collapsed ? "75px" : "250px",
+          transition: "width 0.3s ease",
         },
       }}
     >
       <div>
         <Menu>
           <MenuItem onClick={() => setCollapsed(!collapsed)}>
-            <FontAwesomeIcon icon={collapsed ? faAnglesRight : faAnglesLeft} />
+            <FontAwesomeIcon icon={collapsed ? faAnglesRight : faAnglesLeft} className="toggle-menu-btn" />
           </MenuItem>
 
-          <MenuItem>
-            <div className="user-info">
+          <MenuItem className="user-info-item">
+            <div className="user-info-container">
               <div className="user-avatar">
                 <img src={UserImage} alt="user avatar" />
               </div>
               {!collapsed && (
-                <div className="user-info-container">
+                <div className="user-info-user-details">
                   <div className="user-info-username">username</div>
                   <div className="user-info-email">mm6dd.mh@gmail.com</div>
                 </div>
@@ -98,9 +99,11 @@ const Navigation = () => {
           <div className="menu-divide-line"></div>
 
           {navigationLinks.map((navigation) => (
-            <MenuItem className="menu-items" key={navigation.index} component={<Link to={navigation.link} />}>
-              <FontAwesomeIcon icon={navigation.icon} style={{ fontSize: navigation.iconSize }} className="menu-icon" />
-              {!collapsed && navigation.navigation}
+            <MenuItem key={navigation.index} component={<Link to={navigation.link} />}>
+              <span className="menu-items">
+                <FontAwesomeIcon icon={navigation.icon} style={{ fontSize: navigation.iconSize }} className="menu-icon" />
+                {!collapsed && navigation.navigation}
+              </span>
             </MenuItem>
           ))}
         </Menu>

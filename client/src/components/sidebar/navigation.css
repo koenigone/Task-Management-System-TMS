@@ -1,11 +1,19 @@
 /* Sidebar styles */
+.sidebar {
+  width: 75px;
+}
+
 .sidebar .ps-menu-button {
-  color: white !important;
+  color: #FFFFFF !important;
 }
 
 .sidebar .ps-menu-button:hover {
   background-color: #3a4251 !important;
   border-radius: 10px;
+}
+
+.sidebar .toggle-menu-btn {
+  margin-left: 11px;
 }
 
 /* DIVIDE LINE */
@@ -14,26 +22,29 @@
 }
 
 /* USER INFO SECTION */
-.user-info {
+.user-info-item {
   display: flex;
-  align-items: center;
+  justify-content: center;
 }
 
-.user-avatar {
-  overflow: hidden;
+.user-info-container {
+  display: flex;
+}
+
+.user-info-item .user-info-container .user-avatar {
   margin-right: 10px;
 }
 
-.user-avatar img {
+.user-info-item .user-info-container .user-avatar img {
   width: 40px;
   height: 40px;
 }
 
-.user-info .user-info-container .user-info-username {
+.user-info-item .user-info-user-details .user-info-username {
   font-size: 15px;
 }
 
-.user-info .user-info-container .user-info-email {
+.user-info-item .user-info-user-details .user-info-email {
   font-size: 12px;
   color: #bfbfbf;
 }
