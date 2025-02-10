@@ -1,0 +1,47 @@
+/* Sidebar styles */
+.sidebar .ps-menu-button {
+  color: white !important;
+}
+
+.sidebar .ps-menu-button:hover {
+  background-color: #3a4251 !important;
+  border-radius: 10px;
+}
+
+/* DIVIDE LINE */
+.menu-divide-line {
+  border-bottom: 1px solid #4e5b6b;
+}
+
+/* USER INFO SECTION */
+.user-info {
+  display: flex;
+  align-items: center;
+}
+
+.user-avatar {
+  overflow: hidden;
+  margin-right: 10px;
+}
+
+.user-avatar img {
+  width: 40px;
+  height: 40px;
+}
+
+.user-info .user-info-container .user-info-username {
+  font-size: 15px;
+}
+
+.user-info .user-info-container .user-info-email {
+  font-size: 12px;
+  color: #bfbfbf;
+}
+
+.menu-items {
+  margin-left: 7px;
+}
+
+.menu-icon {
+  margin-right: 15px;
+}
