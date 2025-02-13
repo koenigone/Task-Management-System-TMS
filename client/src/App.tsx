@@ -1,4 +1,5 @@
 import './App.css'
+import { MantineProvider } from '@mantine/core';
 import Navigation from './components/sidebar/navigation'
 import { Route, Routes } from 'react-router'
 
@@ -7,13 +8,15 @@ import CreateGroup from './pages/createGroup/createGroup'
 import MyGroups from './pages/myGroups/myGroups'
 import JoinedGroups from './pages/joinedGroups/joinedGroups'
 import Settings from './pages/settings/settings'
+import SignUp from './pages/sign-in-up-pages/signup'
 
 function App() {
 
   return (
-    <div className='main-container'>
+    <MantineProvider>
       <nav>
-        <Navigation />
+        {/* <Navigation /> */}
+        <SignUp />
       </nav>
       <main>
         <Routes>
@@ -24,7 +27,7 @@ function App() {
           <Route path='/Settings' element={<Settings />}></Route>
         </Routes>
       </main>
-    </div>
+    </MantineProvider>
   )
 }
 

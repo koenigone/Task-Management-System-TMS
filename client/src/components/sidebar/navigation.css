@@ -1,10 +1,7 @@
 /* Sidebar styles */
-.sidebar {
-  width: 75px;
-}
-
 .sidebar .ps-menu-button {
   color: #FFFFFF !important;
+  width: 100% !important;
 }
 
 .sidebar .ps-menu-button:hover {
@@ -13,7 +10,7 @@
 }
 
 .sidebar .toggle-menu-btn {
-  margin-left: 11px;
+  margin: 11px;
 }
 
 /* DIVIDE LINE */
@@ -23,21 +20,19 @@
 
 /* USER INFO SECTION */
 .user-info-item {
-  display: flex;
-  justify-content: center;
+  width: 100%;
 }
 
 .user-info-container {
   display: flex;
-}
-
-.user-info-item .user-info-container .user-avatar {
-  margin-right: 10px;
+  align-items: center;
+  justify-content: flex-start;
 }
 
 .user-info-item .user-info-container .user-avatar img {
   width: 40px;
   height: 40px;
+  margin-right: 6px;
 }
 
 .user-info-item .user-info-user-details .user-info-username {

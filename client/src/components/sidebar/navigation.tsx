@@ -58,6 +58,8 @@ const Navigation = () => {
 
   return (
     <Sidebar
+      width="230px"          // temp
+      collapsedWidth="90px"  // temp
       collapsed={collapsed}
       className={`sidebar ${collapsed ? "collapsed" : "expanded"}`}
       rootStyles={{
@@ -71,7 +73,6 @@ const Navigation = () => {
           padding: 0,
           margin: 0,
           height: "100vh",
-          width: collapsed ? "75px" : "250px",
           transition: "width 0.3s ease",
         },
       }}

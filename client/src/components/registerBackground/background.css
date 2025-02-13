@@ -1,0 +1,36 @@
+/* Bottom curved shape */
+.bottom-left-shape {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 65%;
+  height: 50%;
+  background-color: #3498db;
+  border-top-right-radius: 100%;
+  z-index: -999;
+}
+
+/* Top-right circles */
+.top-right-circle {
+  position: absolute;
+  border-radius: 50%;
+  z-index: -999;
+}
+
+.top-right-circle.large {
+  top: 10px;
+  right: 10px;
+  width: 140px;
+  height: 140px;
+  background-color: #3498db;
+  z-index: -999;
+}
+
+.top-right-circle.small {
+  top: 140px;
+  right: 140px;
+  width: 50px;
+  height: 50px;
+  background-color: #2a9d8f;
+  z-index: -999;
+}
