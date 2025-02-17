@@ -1,0 +1,30 @@
+import "./coomponents.css";
+import { faPen, faCheck, faListCheck } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+
+const InformativeIcons = () => {
+
+
+  return (
+    <div className="informative-icons-container">
+      <div
+        className="informative-icon"
+        data-bs-toggle="tooltip" // ✅ Correct attribute for Bootstrap 5
+        data-bs-placement="top"
+        title="Tooltip on top"
+      >
+        <FontAwesomeIcon icon={faPen} />
+      </div>
+
+      <div className="informative-icon">
+        <FontAwesomeIcon icon={faCheck} />
+      </div>
+
+      <div className="informative-icon">
+        <FontAwesomeIcon icon={faListCheck} />
+      </div>
+    </div>
+  );
+};
+
+export default InformativeIcons;

@@ -1,4 +1,4 @@
-import "./background.css";
+import "./coomponents.css";
 
 const CurvedBackground = () => {
   return (

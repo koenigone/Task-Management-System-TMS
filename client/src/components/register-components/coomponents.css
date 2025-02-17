@@ -1,0 +1,68 @@
+/* Bottom curved shape */
+.bottom-left-shape {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 65%;
+  height: 50%;
+  background-color: #3498db;
+  border-top-right-radius: 100%;
+  z-index: 1;
+}
+
+/* Top-right circles */
+.top-right-circle {
+  position: absolute;
+  border-radius: 50%;
+  z-index: 1;
+}
+
+.top-right-circle.large {
+  top: 10px;
+  right: 10px;
+  width: 140px;
+  height: 140px;
+  background-color: #3498db;
+}
+
+.top-right-circle.small {
+  top: 140px;
+  right: 140px;
+  width: 50px;
+  height: 50px;
+  background-color: #2a9d8f;
+}
+
+.information-container {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+}
+
+.information-icon {
+  font-size: 30px;
+  color: #696969;
+}
+
+.informative-icons-container {
+  display: flex;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  margin: 20px;
+}
+
+.informative-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #FFFFFF;
+  font-size: 22px;
+  margin: 0 0 0 30px;
+  background-color: #696969;
+  padding: 2px;
+  width: 45px;
+  height: 45px;
+  text-align: center;
+  border-radius: 4px;
+}
