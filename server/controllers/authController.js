@@ -1,20 +1,8 @@
-const db = require("../config/db");
-const bcrypt = require("bcrypt");
+const db = require("../config/db.js");
 
-// generates 8 digits ID for each user
-const generateUserID = () => {
-  return Math.floor(Math.random() * 90000000) + 10000000;
-};
+const signUp = (req, res) => {
+  const { username, email, password } = req.body;
 
-// sign up section
-const signUp = async (req, res) => {
-
-  const userID = generateUserID();    // generate user ID
-  const username = req.body.username; // get username
-  const email = req.body.email;       // get email
-  const password = req.body.password; // get password
-
-  // validate fields are not empty
   if (!username || !email || !password) {
     return res
       .status(400)
@@ -75,38 +63,19 @@ const Login = async (req, res) => {
     return res.status(400).json({ message: "All fields are required" });
   }
 
-  const loginQuery = "SELECT * FROM User WHERE User_Email = ?";
+  // generate 8 digits ID for users
+  const generateUserID = () => {
+    return Math.floor(Math.random() * 90000000) + 10000000;
+  }
 
-  db.get(loginQuery, [email], async (error, user) => {
-    if (error) {
-      return res
-        .status(500)
-        .json({ message: "Database error", error: err.message });
+  const sql = "INSERT INTO User (User_ID, User_Username, User_Email, User_Password) VALUES (?, ?, ?, ?)";
+  
+  db.run(sql, [generateUserID(), username, email, password], function (err) {
+    if (err) {
+      console.error("Error inserting user:", err.message);
+      return res.status(500).json({ message: "Database error", error: err.message });
     }
-
-    if (!user) {
-      return res
-        .status(401)
-        .json({ message: "Invalid email or password" });
-    }
-
-    // Compare the entered password with the hashed password
-    const isMatch = await bcrypt.compare(password, user.User_Password);
-
-    if (!isMatch) {
-      return res.status(401).json({ message: "Invalid email or password" });
-    }
-
-    req.session.user = { 
-      id: user.User_ID, 
-      username: user.User_Username, 
-      email: user.User_Email 
-    };
-
-    res.json({
-      message: "Login successful", 
-      user: req.session.user
-    });
+    res.json({ message: "User created successfully", userId: this.lastID });
   });
 };
 
