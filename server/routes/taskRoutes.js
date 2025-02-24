@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const cors = require("cors");
-const { createTaskList, getTaskList } = require("../controllers/taskController");
+const { createTaskList, getTaskList, createTask } = require("../controllers/taskController");
 
 // middleware
 router.use(
@@ -13,5 +13,6 @@ router.use(
 
 router.post("/createTaskList", createTaskList);
 router.get("/getTaskList", getTaskList);
+router.get("/createTask", createTask);
 
 module.exports = router;

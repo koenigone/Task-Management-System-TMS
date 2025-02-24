@@ -102,20 +102,19 @@ const createTask = async (req, res) => {
 
       const taskID = generateListID();
       const userID = decoded.id;
-      const { taskDesc, listDueDate } = req.body;
-      const createdDate = new Date().toISOString().split("T")[0];
-      const groupID = null;
+      const { taskDesc, priority, dueDate } = req.body;
+      const status = 0;
 
       if (!listName || !listDueDate) {
         return res.json({ errMessage: "Fields cannot be empty" });
       }
 
       const createListQuery =
-        "INSERT INTO TaskList (List_ID, User_ID, ListName, DueDate, CreatedDate, Group_ID) VALUES (?, ?, ?, ?, ?, ?)";
+        "INSERT INTO Task (Task_ID, User_ID, TaskDesc, Task_Priority, Task_Status, Task_DueDate) VALUES (?, ?, ?, ?, ?, ?)";
 
       db.run(
         createListQuery,
-        [listID, userID, listName, listDueDate, createdDate, groupID],
+        [taskID, userID, taskDesc, priority, dueDate, status],
         function (error) {
           if (error) {
             return res.json({
@@ -124,7 +123,7 @@ const createTask = async (req, res) => {
             });
           }
           res.json({
-            message: "List created successfully",
+            message: "Task added successfully!",
           });
         }
       );

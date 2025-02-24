@@ -32,7 +32,8 @@ import {
   faCircle,
 } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useState } from "react";
-import { title } from "framer-motion/client";
+import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 interface TaskList {
   List_ID: number;
@@ -41,11 +42,62 @@ interface TaskList {
   CreatedDate: string;
 }
 
+// interface Task {
+//   ListDesc: string;
+//   ListPriority: number;
+//   ListDueDate: Date;
+// }
+
 const TaskListCard = () => {
+  const navigate = useNavigate();
   const [taskLists, setTaskLists] = useState<TaskList[]>([]);
   const [selectedTaskList, setSelectedTaskList] = useState<TaskList | null>(
     null
   );
+
+  const [createTaskData, setCreateTaskData] = useState({
+    taskDesc: "",
+    taskPriority: "",
+    taskDueDate: "",
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    // prevents the page from auto reload on submission
+    e.preventDefault();
+    const { taskDesc, taskPriority, taskDueDate } = createTaskData;
+
+    try {
+      const { data } = await axios.post("/createTaskList", { taskDesc, taskPriority, taskDueDate });
+      if (data.errMessage) {
+        toast.error(data.errMessage);
+      } else {
+        setCreateTaskData({
+          // reset fields if no error
+          taskDesc: "",
+          taskPriority: "",
+          taskDueDate: "",
+        });
+        toast.success("Task added successfully");
+        navigate("/"); // navigate to login upon successfull sign up
+      }
+    } catch (err) {
+      console.error("Adding task error:", err);
+    }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setCreateTaskData({
+      ...createTaskData,
+      [name]: value,
+    });
+  };
+
+  // const [tasks, setTasks] = useState<Task[]>([]);
+  // const [selectedTask, setSelectedTask] = useState<Task | null>(
+  //   null
+  // );
+
   const [isOpenBox, setIsOpenBox] = useState(false);
   const [isOpenAdd, setIsOpenAdd] = useState(false);
 
@@ -166,7 +218,7 @@ const TaskListCard = () => {
           <ModalHeader>Add</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <form>
+            <form onSubmit={handleSubmit}>
               <VStack spacing={4} align="stretch">
                 <FormControl>
                   <FormLabel>Task Description</FormLabel>
@@ -176,8 +228,8 @@ const TaskListCard = () => {
                     name="teskDescription"
                     color="black"
                     placeholder="'change the background image'"
-                    // value={createListData.listName}
-                    // onChange={handleInputChange}
+                    value={createTaskData.taskDesc}
+                    onChange={handleInputChange}
                   />
                 </FormControl>
 
@@ -195,10 +247,13 @@ const TaskListCard = () => {
                       ))}
                     </HStack>
                   </FormLabel>
-                  <Select>
-                    <option value="1">Low</option>
-                    <option value="2">Normal</option>
-                    <option value="3">High</option>
+                  <Select
+                    value={createTaskData.taskPriority}
+                    onChange={handleInputChange}
+                  >
+                    <option value={1}>Low</option>
+                    <option value={2}>Normal</option>
+                    <option value={3}>High</option>
                   </Select>
                 </FormControl>
 
@@ -209,6 +264,8 @@ const TaskListCard = () => {
                     type="date"
                     name="taskDueDate"
                     color="black"
+                    value={createTaskData.taskDueDate}
+                    onChange={handleInputChange}
                   />
                 </FormControl>
 
