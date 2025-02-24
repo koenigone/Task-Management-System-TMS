@@ -1,0 +1,9 @@
+.taskListCard {
+  box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.205);
+  transition: all 0.3s ease-in-out;
+}
+
+.taskListCard:hover {
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+  transform: translateY(-2px);
+}

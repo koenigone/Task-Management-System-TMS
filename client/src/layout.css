@@ -6,8 +6,7 @@
 
 /* Sidebar (Fixed Width, Full Height) */
 aside {
-  width: 250px;
-  background-color: #d9d9d9;
+  width: 240px;
   display: flex;
   flex-direction: column;
 }
@@ -21,7 +20,6 @@ aside {
 
 /* Header (Full Width) */
 header {
-  background-color: #ff6347; /* Tomato color */
   color: white;
   text-align: center;
 }

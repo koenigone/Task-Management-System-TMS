@@ -87,4 +87,51 @@ const getTaskList = (req, res) => {
   }
 };
 
-module.exports = { createTaskList, getTaskList };
+const createTask = async (req, res) => {
+  try {
+    const { token } = req.cookies;
+    if (!token) {
+      return res.status(401).json({ errMessage: "Unauthorized" });
+    }
+
+    // Verify and decode the token
+    jwt.verify(token, jwtSecret, async (err, decoded) => {
+      if (err) {
+        return res.status(401).json({ errMessage: "Invalid token" });
+      }
+
+      const taskID = generateListID();
+      const userID = decoded.id;
+      const { taskDesc, listDueDate } = req.body;
+      const createdDate = new Date().toISOString().split("T")[0];
+      const groupID = null;
+
+      if (!listName || !listDueDate) {
+        return res.json({ errMessage: "Fields cannot be empty" });
+      }
+
+      const createListQuery =
+        "INSERT INTO TaskList (List_ID, User_ID, ListName, DueDate, CreatedDate, Group_ID) VALUES (?, ?, ?, ?, ?, ?)";
+
+      db.run(
+        createListQuery,
+        [listID, userID, listName, listDueDate, createdDate, groupID],
+        function (error) {
+          if (error) {
+            return res.json({
+              errMessage: "Database error",
+              error: error.message,
+            });
+          }
+          res.json({
+            message: "List created successfully",
+          });
+        }
+      );
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+module.exports = { createTaskList, getTaskList, createTask };

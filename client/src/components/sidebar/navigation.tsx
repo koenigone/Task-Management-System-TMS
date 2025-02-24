@@ -31,35 +31,35 @@ const Navigation = () => {
       index: 0,
       link: "/",
       icon: faHouse,
-      iconSize: isMobile ? "15px" : "21px",
+      iconSize: "21px",
       navigation: "Dashboard",
     },
     {
       index: 1,
       link: "/CreateGroup",
       icon: faPlus,
-      iconSize: isMobile ? "15px" : "27px",
+      iconSize: "27px",
       navigation: "Create Group",
     },
     {
       index: 2,
       link: "/MyGroups",
       icon: faChalkboardUser,
-      iconSize: isMobile ? "15px" : "21px",
+      iconSize: "21px",
       navigation: "My Groups",
     },
     {
       index: 3,
       link: "/JoinedGroups",
       icon: faUsers,
-      iconSize: isMobile ? "15px" : "21px",
+      iconSize: "21px",
       navigation: "Joined Groups",
     },
     {
       index: 4,
       link: "/Settings",
       icon: faGear,
-      iconSize: isMobile ? "15px" : "24px",
+      iconSize: "24px",
       navigation: "Settings",
     },
   ];
@@ -74,8 +74,6 @@ const Navigation = () => {
         ></div>
       )}
       <Sidebar
-        width="250px" // temp
-        collapsedWidth="90px"
         collapsed={collapsed}
         className={`sidebar ${collapsed ? "collapsed" : "expanded"}`}
         rootStyles={{
@@ -89,7 +87,7 @@ const Navigation = () => {
             padding: 0,
             margin: 0,
             height: "100vh",
-            minWidth: isMobile ? "60px" : "90px",
+            width: !collapsed ? "240px" : "90px",
             transition: "width 0.3s ease",
             zIndex: 10,
           },
