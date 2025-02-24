@@ -1,6 +1,8 @@
-import "./sign-in-up.css";
+import "./passport.css";
 import { useState } from "react";
-import Axios from "axios";
+import axios from "axios";
+import { toast } from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 import {
   Box,
   FormControl,
@@ -24,43 +26,46 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
 const SignUp = () => {
-  const [formData, setFormData] = useState({
-    username: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
+  const navigate = useNavigate();
+  const [signUpData, setSignUpData] = useState({
+    username: '',
+    email: '',
+    password: '',
+    confirmPassword: ''
   });
-
   const [passwordVisible, setPasswordVisible] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const signUp = async () => {
-    if (formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match!");
-      return;
-    }
+  const handleSubmit = async (e: React.FormEvent) => { // prevents the page from auto reload on submission
+    e.preventDefault();
+    const { username, email, password } = signUpData;
 
     try {
-      const response = await Axios.post("http://localhost:3000/auth/signup", {
-        username: formData.username,
-        email: formData.email,
-        password: formData.password,
-      });
+      const { data } = await axios.post("/signup", { username, email, password });
+      if (data.errMessage) {
+        toast.error(data.errMessage);
+      } else {
+        setSignUpData({ // reset fields if no error
+          username: '',
+          email: '',
+          password: '',
+          confirmPassword: ''
+        });
+        toast.success("Sign Up Successfull!");
+        navigate('/login') // navigate to login upon successfull sign up
+      }
+      console.log("Signup successful:", data);
 
-      console.log("Response:", response.data);
-      alert("Account created successfully!");
-    } catch (error) {
-      console.error("Error signing up:", error);
-      alert("Failed to create account!");
+    } catch (err) {
+      console.error("Signup error:", err);
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    signUp();
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setSignUpData({
+      ...signUpData,
+      [name]: value
+    });
   };
 
   return (
@@ -85,8 +90,8 @@ const SignUp = () => {
                   name="username"
                   color="black"
                   placeholder="Enter your username"
-                  value={formData.username}
-                  onChange={handleChange}
+                  value={signUpData.username}
+                  onChange={handleInputChange}
                 />
               </FormControl>
 
@@ -98,8 +103,8 @@ const SignUp = () => {
                   name="email"
                   color="black"
                   placeholder="example@gmail.com"
-                  value={formData.email}
-                  onChange={handleChange}
+                  value={signUpData.email}
+                  onChange={handleInputChange}
                 />
               </FormControl>
 
@@ -113,8 +118,8 @@ const SignUp = () => {
                     name="password"
                     color="black"
                     placeholder="Enter your password"
-                    value={formData.password}
-                    onChange={handleChange}
+                    value={signUpData.password}
+                    onChange={handleInputChange}
                   />
                   <InputRightElement width="4.5rem">
                     <Button h="1.75rem" variant="ghost" _hover={{ bg: "transparent" }} color="rgba(0, 0, 0, 0.3)" size="sm" onClick={() => setPasswordVisible(!passwordVisible)}>
@@ -134,8 +139,8 @@ const SignUp = () => {
                     name="confirmPassword"
                     color="black"
                     placeholder="Confirm password"
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
+                    value={signUpData.confirmPassword}
+                    onChange={handleInputChange}
                   />
                   <InputRightElement width="4.5rem">
                     <Button h="1.75rem" variant="ghost" _hover={{ bg: "transparent" }} color="rgba(0, 0, 0, 0.3)" size="sm" onClick={() => setPasswordVisible(!passwordVisible)}>

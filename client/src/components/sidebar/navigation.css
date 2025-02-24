@@ -51,3 +51,21 @@
 .menu-icon {
   margin-right: 15px;
 }
+
+.mobile-btn {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  color: black;
+}
+
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9; /* Ensure it covers everything */
+  display: block;
+}

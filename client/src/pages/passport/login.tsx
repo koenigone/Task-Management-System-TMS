@@ -1,6 +1,8 @@
-import "./sign-in-up.css";
+import "./passport.css";
 import { useState } from "react";
-import Axios from "axios";
+import axios from "axios";
+import { toast } from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 import {
   Box,
   FormControl,
@@ -21,41 +23,45 @@ import InformativeIcons from "../../components/register-components/informativeIc
 import { Link as RouterLink } from "react-router-dom";
 import { ChakraProvider } from "@chakra-ui/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEye,faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
 const Login = () => {
-  const [formData, setFormData] = useState({
-    username: "",
-    email: "",
-    password: "",
+  const navigate = useNavigate();
+  const [loginData, setLoginData] = useState({
+    email: '',
+    password: ''
   });
-
   const [passwordVisible, setPasswordVisible] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const signIn = async () => {
+  const handleSubmit = async (e: React.FormEvent) => { // prevents the page from auto reload on submission
+    e.preventDefault();
+    const { email, password } = loginData;
 
     try {
-      const response = await Axios.post("http://localhost:3000/auth/login", {
-        username: formData.username,
-        email: formData.email,
-        password: formData.password,
-      });
+      const { data } = await axios.post("/login", { email, password });
+      if (data.errMessage) {
+        toast.error(data.errMessage);
+      } else {
+        setLoginData({ // reset fields if no error
+          email: '',
+          password: '',
+        });
+        toast.success("Sign Up Successfull!");
+        navigate('/') // navigate to login upon successfull sign up
+      }
+      console.log("Signup successful:", data);
 
-      console.log("Response:", response.data);
-      alert("Login Successful!");
-    } catch (error) {
-      console.error("Error signing up:", error);
-      alert("Failed to Login!");
+    } catch (err) {
+      console.error("Signup error:", err);
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    signIn();
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setLoginData({
+      ...loginData,
+      [name]: value
+    });
   };
 
   return (
@@ -72,17 +78,16 @@ const Login = () => {
 
           <form onSubmit={handleSubmit}>
             <VStack spacing={4} align="stretch">
-
               <FormControl>
-                <FormLabel>Email or Username</FormLabel>
+                <FormLabel>Email</FormLabel>
                 <Input
                   bg="#E3E3E3"
                   type="email"
                   name="email"
                   color="black"
                   placeholder="example@gmail.com"
-                  value={formData.email}
-                  onChange={handleChange}
+                  value={loginData.email}
+                  onChange={handleInputChange}
                 />
               </FormControl>
 
@@ -96,12 +101,19 @@ const Login = () => {
                     name="password"
                     color="black"
                     placeholder="Enter your password"
-                    value={formData.password}
-                    onChange={handleChange}
+                    value={loginData.password}
+                    onChange={handleInputChange}
                   />
                   <InputRightElement width="4.5rem">
-                    <Button h="1.75rem" variant="ghost" _hover={{ bg: "transparent" }} color="rgba(0, 0, 0, 0.3)" size="sm" onClick={() => setPasswordVisible(!passwordVisible)}>
-                      <FontAwesomeIcon icon={passwordVisible ? faEye : faEyeSlash } />
+                    <Button
+                      h="1.75rem"
+                      variant="ghost"
+                      _hover={{ bg: "transparent" }}
+                      color="rgba(0, 0, 0, 0.3)"
+                      size="sm"
+                      onClick={() => setPasswordVisible(!passwordVisible)}
+                    >
+                      <FontAwesomeIcon icon={passwordVisible ? faEye : faEyeSlash} />
                     </Button>
                   </InputRightElement>
                 </InputGroup>

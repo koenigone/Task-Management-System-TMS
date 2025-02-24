@@ -1,11 +1,11 @@
-import './dashboard.css'
+import TaskListCard from "../../components/taskListCard/taskListCard";
 
 const Dashboard = () => {
-    return(
-        <div>
-            <h1>Dashboard</h1>
-        </div>
-    );
-}
+  return (
+    <div>
+        <TaskListCard />
+    </div>
+  );
+};
 
-export default Dashboard
+export default Dashboard;

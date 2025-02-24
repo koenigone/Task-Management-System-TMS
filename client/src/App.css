@@ -13,6 +13,21 @@ body {
     box-sizing: border-box;
 }
 
-.main-container {
+/* App.css */
+.app-container {
     display: flex;
-}
+    min-height: 100vh;
+  }
+  
+  /* Navigation (Sidebar) */
+  .app-container > nav {
+    width: 250px;
+    background-color: #f4f4f4;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Content Area */
+  .content-container {
+    flex: 1;
+    overflow-y: auto;
+  }

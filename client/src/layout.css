@@ -1,0 +1,34 @@
+/* Layout Container */
+.app-container {
+  display: flex;
+  height: 100vh;
+}
+
+/* Sidebar (Fixed Width, Full Height) */
+aside {
+  width: 250px;
+  background-color: #d9d9d9;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Main Content Container */
+.main-content-container {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header (Full Width) */
+header {
+  background-color: #ff6347; /* Tomato color */
+  color: white;
+  text-align: center;
+}
+
+/* Main Content */
+main {
+  flex-grow: 1;
+  padding: 20px;
+  background-color: white;
+}
