@@ -57,7 +57,7 @@ const TaskListCard = () => {
 
   const [createTaskData, setCreateTaskData] = useState({
     taskDesc: "",
-    taskPriority: "",
+    taskPriority: 0,
     taskDueDate: "",
   });
 
@@ -74,7 +74,7 @@ const TaskListCard = () => {
         setCreateTaskData({
           // reset fields if no error
           taskDesc: "",
-          taskPriority: "",
+          taskPriority: 0,
           taskDueDate: "",
         });
         toast.success("Task added successfully");
@@ -226,7 +226,6 @@ const TaskListCard = () => {
                     bg="#E3E3E3"
                     type="text"
                     name="teskDescription"
-                    color="black"
                     placeholder="'change the background image'"
                     value={createTaskData.taskDesc}
                     onChange={handleInputChange}
@@ -248,8 +247,9 @@ const TaskListCard = () => {
                     </HStack>
                   </FormLabel>
                   <Select
+                    name="taskPriority"
                     value={createTaskData.taskPriority}
-                    onChange={handleInputChange}
+                    // onChange={handleInputChange}
                   >
                     <option value={1}>Low</option>
                     <option value={2}>Normal</option>
