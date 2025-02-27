@@ -51,16 +51,9 @@ interface Task {
   Task_Status: number;
 }
 
-// interface Task {
-//   ListDesc: string;
-//   ListPriority: number;
-//   ListDueDate: Date;
-// }
-
 const TaskListCard = () => {
   const navigate = useNavigate();
   const [taskLists, setTaskLists] = useState<TaskList[]>([]);
-<<<<<<< HEAD
   const [selectedTaskList, setSelectedTaskList] = useState<TaskList | null>(null);
 
   const [createTaskData, setCreateTaskData] = useState({
@@ -88,30 +81,10 @@ const TaskListCard = () => {
         taskPriority,
         taskDueDate,
       });
-=======
-  const [selectedTaskList, setSelectedTaskList] = useState<TaskList | null>(
-    null
-  );
-
-  const [createTaskData, setCreateTaskData] = useState({
-    taskDesc: "",
-    taskPriority: 0,
-    taskDueDate: "",
-  });
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    // prevents the page from auto reload on submission
-    e.preventDefault();
-    const { taskDesc, taskPriority, taskDueDate } = createTaskData;
-
-    try {
-      const { data } = await axios.post("/createTaskList", { taskDesc, taskPriority, taskDueDate });
->>>>>>> fa3d1366f734b07c57a56be8c2eb65acdddc1653
       if (data.errMessage) {
         toast.error(data.errMessage);
       } else {
         setCreateTaskData({
-<<<<<<< HEAD
           listID: "",
           taskDesc: "",
           taskPriority: 1,
@@ -119,22 +92,12 @@ const TaskListCard = () => {
         });
         toast.success("Task added successfully");
         navigate("/");
-=======
-          // reset fields if no error
-          taskDesc: "",
-          taskPriority: 0,
-          taskDueDate: "",
-        });
-        toast.success("Task added successfully");
-        navigate("/"); // navigate to login upon successfull sign up
->>>>>>> fa3d1366f734b07c57a56be8c2eb65acdddc1653
       }
     } catch (err) {
       console.error("Adding task error:", err);
     }
   };
 
-<<<<<<< HEAD
   const handleInputChange = (e: React.ChangeEvent<any>) => {
     const { name, value } = e.target;
     setCreateTaskData((prevData) => ({
@@ -143,21 +106,6 @@ const TaskListCard = () => {
     }));
   };
 
-=======
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setCreateTaskData({
-      ...createTaskData,
-      [name]: value,
-    });
-  };
-
-  // const [tasks, setTasks] = useState<Task[]>([]);
-  // const [selectedTask, setSelectedTask] = useState<Task | null>(
-  //   null
-  // );
-
->>>>>>> fa3d1366f734b07c57a56be8c2eb65acdddc1653
   const [isOpenBox, setIsOpenBox] = useState(false);
   const [isOpenAdd, setIsOpenAdd] = useState(false);
 
@@ -297,48 +245,27 @@ const TaskListCard = () => {
                   <Input
                     bg="#E3E3E3"
                     type="text"
-<<<<<<< HEAD
                     name="taskDesc"
                     color="black"
                     placeholder="Enter task description"
-=======
-                    name="teskDescription"
-                    placeholder="'change the background image'"
->>>>>>> fa3d1366f734b07c57a56be8c2eb65acdddc1653
                     value={createTaskData.taskDesc}
                     onChange={handleInputChange}
                   />
                 </FormControl>
 
                 <FormControl>
-                  <FormLabel>
-                    <HStack align="center">
-                      <FormLabel marginBottom="0">Priority</FormLabel>
-                      {priorityIcons.map((icon) => (
-                        <FontAwesomeIcon
-                          key={icon.key}
-                          icon={icon.icon}
-                          color={icon.color}
-                          title={icon.title}
-                        />
-                      ))}
-                    </HStack>
-                  </FormLabel>
+                  <FormLabel>Priority</FormLabel>
                   <Select
                     name="taskPriority"
                     value={createTaskData.taskPriority}
-<<<<<<< HEAD
                     onChange={handleInputChange}
-=======
-                    // onChange={handleInputChange}
->>>>>>> fa3d1366f734b07c57a56be8c2eb65acdddc1653
                   >
                     <option value={1}>Low</option>
                     <option value={2}>Normal</option>
                     <option value={3}>High</option>
                   </Select>
                 </FormControl>
-                
+
                 <FormControl>
                   <FormLabel>Due Date</FormLabel>
                   <Input
@@ -359,9 +286,6 @@ const TaskListCard = () => {
               </VStack>
             </form>
           </ModalBody>
-          <ModalFooter>
-            <Button onClick={onCloseAdd}>Close</Button>
-          </ModalFooter>
         </ModalContent>
       </Modal>
     </Flex>
