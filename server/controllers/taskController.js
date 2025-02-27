@@ -132,8 +132,12 @@ const createTask = async (req, res) => {
 
       const taskID = generateListID();
       const userID = decoded.id;
+<<<<<<< HEAD
       const { listID, taskDesc, taskPriority, taskDueDate } = req.body;
       const priorityToNum = Number(taskPriority); // Convert to number
+=======
+      const { taskDesc, priority, dueDate } = req.body;
+>>>>>>> fa3d1366f734b07c57a56be8c2eb65acdddc1653
       const status = 0;
 
       if (!taskDesc || !priorityToNum || !taskDueDate) {
@@ -141,11 +145,19 @@ const createTask = async (req, res) => {
       }
 
       const createListQuery =
+<<<<<<< HEAD
         "INSERT INTO Task (Task_ID, User_ID, List_ID, Task_Desc, Task_Priority, Task_Status, Task_DueDate) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
       db.run(
         createListQuery,
         [taskID, userID, listID, taskDesc, priorityToNum, taskDueDate, status],
+=======
+        "INSERT INTO Task (Task_ID, User_ID, TaskDesc, Task_Priority, Task_Status, Task_DueDate) VALUES (?, ?, ?, ?, ?, ?)";
+
+      db.run(
+        createListQuery,
+        [taskID, userID, taskDesc, priority, dueDate, status],
+>>>>>>> fa3d1366f734b07c57a56be8c2eb65acdddc1653
         function (error) {
           if (error) {
             return res.json({
