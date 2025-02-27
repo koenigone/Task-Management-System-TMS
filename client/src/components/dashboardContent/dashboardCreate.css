@@ -1,5 +1,6 @@
 .create-tasklist-container {
   background-color: #D9D9D9;
+  color: #4e5b6b;
   display: flex;
   list-style-type: none;
   justify-content: space-around;
@@ -11,6 +12,7 @@
 
 .filter-tasklist-container {
   background-color: #D9D9D9;
+  color: #4e5b6b;
   display: flex;
   list-style-type: none;
   justify-content: space-around;

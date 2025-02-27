@@ -32,20 +32,80 @@ import {
   faCircle,
 } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useState } from "react";
-import { title } from "framer-motion/client";
+import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 interface TaskList {
   List_ID: number;
   ListName: string;
   DueDate: string;
   CreatedDate: string;
+  tasks?: Task[]; // Add tasks to the TaskList interface
+}
+
+interface Task {
+  Task_ID: number;
+  Task_Desc: string;
+  Task_Priority: number;
+  Task_DueDate: string;
+  Task_Status: number;
 }
 
 const TaskListCard = () => {
+  const navigate = useNavigate();
   const [taskLists, setTaskLists] = useState<TaskList[]>([]);
-  const [selectedTaskList, setSelectedTaskList] = useState<TaskList | null>(
-    null
-  );
+  const [selectedTaskList, setSelectedTaskList] = useState<TaskList | null>(null);
+
+  const [createTaskData, setCreateTaskData] = useState({
+    listID: selectedTaskList?.List_ID || "",
+    taskDesc: "",
+    taskPriority: 1,
+    taskDueDate: "",
+  });
+
+  useEffect(() => {
+    setCreateTaskData((prevData) => ({
+      ...prevData,
+      listID: selectedTaskList?.List_ID || "",
+    }));
+  }, [selectedTaskList]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const { listID, taskDesc, taskPriority, taskDueDate } = createTaskData;
+
+    try {
+      const { data } = await axios.post("/createTask", {
+        listID,
+        taskDesc,
+        taskPriority,
+        taskDueDate,
+      });
+      if (data.errMessage) {
+        toast.error(data.errMessage);
+      } else {
+        setCreateTaskData({
+          listID: "",
+          taskDesc: "",
+          taskPriority: 1,
+          taskDueDate: "",
+        });
+        toast.success("Task added successfully");
+        navigate("/");
+      }
+    } catch (err) {
+      console.error("Adding task error:", err);
+    }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<any>) => {
+    const { name, value } = e.target;
+    setCreateTaskData((prevData) => ({
+      ...prevData,
+      [name]: name === "taskPriority" ? Number(value) : value,
+    }));
+  };
+
   const [isOpenBox, setIsOpenBox] = useState(false);
   const [isOpenAdd, setIsOpenAdd] = useState(false);
 
@@ -53,23 +113,25 @@ const TaskListCard = () => {
     setSelectedTaskList(taskList); // Set the selected task list
     setIsOpenBox(true);
   };
+
   const onCloseBox = () => setIsOpenBox(false);
 
   const onOpenAdd = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Stop event propagation
+    e.stopPropagation();
     setIsOpenAdd(true);
   };
+
   const onCloseAdd = () => setIsOpenAdd(false);
 
-  const [isMobile] = useMediaQuery("(max-width: 768px)"); // mobile
+  const [isMobile] = useMediaQuery("(max-width: 768px)");
 
   useEffect(() => {
     const fetchTaskLists = async () => {
       try {
         const response = await axios.get("http://localhost:3000/getTaskList", {
-          withCredentials: true, // Ensures cookies (JWT) are sent
+          withCredentials: true,
         });
-        setTaskLists(response.data.taskLists);
+        setTaskLists(response.data.taskLists); // Set task lists with their tasks
       } catch (error) {
         console.error("Error fetching task lists:", error);
       }
@@ -97,23 +159,16 @@ const TaskListCard = () => {
           border="1px solid #e2e8f0"
           onClick={() => onOpenBox(taskList)} // Pass the taskList when opening the box modal
         >
-          <Text
-            fontWeight="bold"
-            display="flex"
-            justifyContent="space-between"
-            mb={2}
-          >
+          <Text fontWeight="bold" mb={2}>
             {taskList.ListName}
-            <Button onClick={(e) => onOpenAdd(e)}>
-              <FontAwesomeIcon icon={faPlus} />
-            </Button>
           </Text>
 
           <Box mb={3}>
-            <Checkbox colorScheme="green">Sample Task 1</Checkbox>
-            <Checkbox colorScheme="green" isChecked mt={2}>
-              Sample Task 2
-            </Checkbox>
+            {taskList.tasks?.map((task) => (
+              <Checkbox key={task.Task_ID} colorScheme="green" mt={2}>
+                {task.Task_Desc}
+              </Checkbox>
+            ))}
           </Box>
 
           <HStack spacing={3} flexWrap="wrap">
@@ -147,11 +202,28 @@ const TaskListCard = () => {
       <Modal onClose={onCloseBox} isOpen={isOpenBox} isCentered>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader color="black">{selectedTaskList?.ListName}</ModalHeader>
+          <ModalHeader color="black" display="flex" justifyContent="space-between" m={5}>
+            {selectedTaskList?.ListName}{" "}
+            <Button onClick={(e) => onOpenAdd(e)}>
+              <FontAwesomeIcon icon={faPlus} />
+            </Button>
+          </ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             <Text>Due Date: {selectedTaskList?.DueDate}</Text>
             <Text>Created Date: {selectedTaskList?.CreatedDate}</Text>
+
+            {/* Display tasks here */}
+            <VStack spacing={4} align="stretch" mt={4}>
+              {selectedTaskList?.tasks?.map((task) => (
+                <Box key={task.Task_ID} p={4} borderWidth="1px" borderRadius="lg">
+                  <Text fontWeight="bold">{task.Task_Desc}</Text>
+                  <Text>Priority: {task.Task_Priority}</Text>
+                  <Text>Due Date: {task.Task_DueDate}</Text>
+                  <Text>Status: {task.Task_Status === 0 ? "Pending" : "Completed"}</Text>
+                </Box>
+              ))}
+            </VStack>
           </ModalBody>
           <ModalFooter>
             <Button onClick={onCloseBox}>Close</Button>
@@ -166,18 +238,18 @@ const TaskListCard = () => {
           <ModalHeader>Add</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <form>
+            <form onSubmit={handleSubmit}>
               <VStack spacing={4} align="stretch">
                 <FormControl>
                   <FormLabel>Task Description</FormLabel>
                   <Input
                     bg="#E3E3E3"
                     type="text"
-                    name="teskDescription"
+                    name="taskDesc"
                     color="black"
-                    placeholder="'change the background image'"
-                    // value={createListData.listName}
-                    // onChange={handleInputChange}
+                    placeholder="Enter task description"
+                    value={createTaskData.taskDesc}
+                    onChange={handleInputChange}
                   />
                 </FormControl>
 
@@ -195,36 +267,32 @@ const TaskListCard = () => {
                       ))}
                     </HStack>
                   </FormLabel>
-                  <Select>
-                    <option value="1">Low</option>
-                    <option value="2">Normal</option>
-                    <option value="3">High</option>
+                  <Select
+                    name="taskPriority"
+                    value={createTaskData.taskPriority}
+                    onChange={handleInputChange}
+                  >
+                    <option value={1}>Low</option>
+                    <option value={2}>Normal</option>
+                    <option value={3}>High</option>
                   </Select>
                 </FormControl>
-
+                
                 <FormControl>
-                  <FormLabel>Due date</FormLabel>
+                  <FormLabel>Due Date</FormLabel>
                   <Input
                     bg="#E3E3E3"
                     type="date"
                     name="taskDueDate"
                     color="black"
+                    value={createTaskData.taskDueDate}
+                    onChange={handleInputChange}
                   />
                 </FormControl>
 
                 <Center>
-                  <Button
-                    className="submit-btn"
-                    type="submit"
-                    color="white"
-                    fontWeight="bold"
-                    bg="#1B686A"
-                    border="none"
-                    p="10px 12px"
-                    borderRadius="8px"
-                    _hover={{ bg: "#166060" }}
-                  >
-                    Create List
+                  <Button type="submit" colorScheme="teal">
+                    Add Task
                   </Button>
                 </Center>
               </VStack>

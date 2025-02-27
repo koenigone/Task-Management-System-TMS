@@ -68,17 +68,47 @@ const getTaskList = (req, res) => {
       }
 
       const userID = decoded.id; // Ensure it matches the key used in loginUser()
-      const getListQuery = "SELECT * FROM TaskList WHERE User_ID = ? AND Group_ID IS NULL";
 
-      db.all(getListQuery, [userID], (error, rows) => {
+      // Query to fetch task lists for the user
+      const getListQuery =
+        "SELECT * FROM TaskList WHERE User_ID = ? AND Group_ID IS NULL";
+
+      db.all(getListQuery, [userID], (error, taskLists) => {
         if (error) {
           return res.json({
             errMessage: "Database error",
             error: error.message,
           });
         }
-        
-        res.json({ taskLists: rows }); // Return the fetched task lists
+
+        // If no task lists are found, return an empty array
+        if (!taskLists || taskLists.length === 0) {
+          return res.json({ taskLists: [] });
+        }
+
+        // Fetch tasks for each task list
+        const fetchTasksForTaskLists = taskLists.map((taskList) => {
+          return new Promise((resolve, reject) => {
+            const getTasksQuery = "SELECT * FROM Task WHERE List_ID = ?";
+            db.all(getTasksQuery, [taskList.List_ID], (error, tasks) => {
+              if (error) {
+                reject({ errMessage: "Database error", error: error.message });
+              } else {
+                // Attach tasks to the task list
+                resolve({ ...taskList, tasks });
+              }
+            });
+          });
+        });
+
+        // Wait for all tasks to be fetched and combine the results
+        Promise.all(fetchTasksForTaskLists)
+          .then((taskListsWithTasks) => {
+            res.json({ taskLists: taskListsWithTasks });
+          })
+          .catch((error) => {
+            res.json(error);
+          });
       });
     });
   } catch (error) {
@@ -102,20 +132,20 @@ const createTask = async (req, res) => {
 
       const taskID = generateListID();
       const userID = decoded.id;
-      const { taskDesc, listDueDate } = req.body;
-      const createdDate = new Date().toISOString().split("T")[0];
-      const groupID = null;
+      const { listID, taskDesc, taskPriority, taskDueDate } = req.body;
+      const priorityToNum = Number(taskPriority); // Convert to number
+      const status = 0;
 
-      if (!listName || !listDueDate) {
+      if (!taskDesc || !priorityToNum || !taskDueDate) {
         return res.json({ errMessage: "Fields cannot be empty" });
       }
 
       const createListQuery =
-        "INSERT INTO TaskList (List_ID, User_ID, ListName, DueDate, CreatedDate, Group_ID) VALUES (?, ?, ?, ?, ?, ?)";
+        "INSERT INTO Task (Task_ID, User_ID, List_ID, Task_Desc, Task_Priority, Task_Status, Task_DueDate) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
       db.run(
         createListQuery,
-        [listID, userID, listName, listDueDate, createdDate, groupID],
+        [taskID, userID, listID, taskDesc, priorityToNum, taskDueDate, status],
         function (error) {
           if (error) {
             return res.json({
@@ -124,7 +154,7 @@ const createTask = async (req, res) => {
             });
           }
           res.json({
-            message: "List created successfully",
+            message: "Task added successfully!",
           });
         }
       );
@@ -134,4 +164,8 @@ const createTask = async (req, res) => {
   }
 };
 
-module.exports = { createTaskList, getTaskList, createTask };
+module.exports = {
+  createTaskList,
+  getTaskList,
+  createTask,
+};
