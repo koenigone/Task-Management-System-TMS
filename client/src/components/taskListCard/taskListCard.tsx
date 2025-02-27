@@ -163,7 +163,7 @@ const TaskListCard = () => {
             {taskList.ListName}
           </Text>
 
-          <Box mb={3}>
+          <Box mb={3} display="block">
             {taskList.tasks?.map((task) => (
               <Checkbox key={task.Task_ID} colorScheme="green" mt={2}>
                 {task.Task_Desc}

@@ -22,7 +22,7 @@ const Header = () => {
   const location = useLocation(); // Get current route
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [isMobile] = useMediaQuery("(max-width: 768px)");
-  const [isDesktop] = useMediaQuery("(min-width: 1300px)");
+  const [isDesktop] = useMediaQuery("(min-width: 800px)");
 
   return (
     <div className="header">
