@@ -1,5 +1,7 @@
 import "./taskListCard.css";
 import axios from "axios";
+import React, { useContext } from "react";
+import { UserContext } from "../../../context/userContext";
 import {
   Box,
   Checkbox,
@@ -22,6 +24,8 @@ import {
   Input,
   Center,
   Select,
+  Progress,
+  Tooltip
 } from "@chakra-ui/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -37,6 +41,7 @@ import toast from "react-hot-toast";
 
 interface TaskList {
   List_ID: number;
+  User_ID: number;
   ListName: string;
   DueDate: string;
   CreatedDate: string;
@@ -53,8 +58,11 @@ interface Task {
 
 const TaskListCard = () => {
   const navigate = useNavigate();
+  const { user } = useContext(UserContext);
   const [taskLists, setTaskLists] = useState<TaskList[]>([]);
-  const [selectedTaskList, setSelectedTaskList] = useState<TaskList | null>(null);
+  const [selectedTaskList, setSelectedTaskList] = useState<TaskList | null>(
+    null
+  );
 
   const [createTaskData, setCreateTaskData] = useState({
     listID: selectedTaskList?.List_ID || "",
@@ -163,38 +171,40 @@ const TaskListCard = () => {
             {taskList.ListName}
           </Text>
 
-          <Box mb={3}>
-            {taskList.tasks?.map((task) => (
-              <Checkbox key={task.Task_ID} colorScheme="green" mt={2}>
-                {task.Task_Desc}
-              </Checkbox>
-            ))}
+          <Box mb={3} display="block">
+            {taskList.tasks && taskList.tasks.length > 0 ? (
+              taskList.tasks?.map((task) => (
+                <Checkbox key={task.Task_ID} colorScheme="green" mt={2}>
+                  {task.Task_Desc}
+                </Checkbox>
+              ))
+            ) : (
+              <Text color="gray.500" fontStyle="italic">
+                No tasks added
+              </Text>
+            )}
           </Box>
 
           <HStack spacing={3} flexWrap="wrap">
-            <Flex align="center" gap={1}>
-              <FontAwesomeIcon icon={faUsers} />
-              <Text fontSize="sm">6</Text>
-            </Flex>
+            <Badge colorScheme="gray" borderRadius="full" px={2}>
+              <FontAwesomeIcon icon={faCrown} />{" "}
+              {user?.id == taskList.User_ID ? "Leader" : "TBD"}
+            </Badge>
 
             <Flex align="center" gap={1}>
               <FontAwesomeIcon icon={faList} />
               <Text fontSize="sm">14</Text>
             </Flex>
 
-            <Badge colorScheme="gray" borderRadius="full" px={2}>
-              <FontAwesomeIcon icon={faCrown} /> Leader
-            </Badge>
+            <Flex align="center" gap={1}>
+              <FontAwesomeIcon icon={faUsers} />
+              <Text fontSize="sm">6</Text>
+            </Flex>
           </HStack>
 
-          <HStack mt={3} spacing={3}>
-            <Badge colorScheme="red" px={2} borderRadius="full">
-              Due {taskList.DueDate}
-            </Badge>
-            <Badge colorScheme="blue" px={2} borderRadius="full">
-              Progress 70%
-            </Badge>
-          </HStack>
+          <Box mb={2} mt={4}>
+            <Progress value={50} size="sm" colorScheme="teal" />
+          </Box>
         </Box>
       ))}
 
@@ -202,7 +212,12 @@ const TaskListCard = () => {
       <Modal onClose={onCloseBox} isOpen={isOpenBox} isCentered>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader color="black" display="flex" justifyContent="space-between" m={5}>
+          <ModalHeader
+            color="black"
+            display="flex"
+            justifyContent="space-between"
+            m={5}
+          >
             {selectedTaskList?.ListName}{" "}
             <Button onClick={(e) => onOpenAdd(e)}>
               <FontAwesomeIcon icon={faPlus} />
@@ -216,11 +231,18 @@ const TaskListCard = () => {
             {/* Display tasks here */}
             <VStack spacing={4} align="stretch" mt={4}>
               {selectedTaskList?.tasks?.map((task) => (
-                <Box key={task.Task_ID} p={4} borderWidth="1px" borderRadius="lg">
+                <Box
+                  key={task.Task_ID}
+                  p={4}
+                  borderWidth="1px"
+                  borderRadius="lg"
+                >
                   <Text fontWeight="bold">{task.Task_Desc}</Text>
                   <Text>Priority: {task.Task_Priority}</Text>
                   <Text>Due Date: {task.Task_DueDate}</Text>
-                  <Text>Status: {task.Task_Status === 0 ? "Pending" : "Completed"}</Text>
+                  <Text>
+                    Status: {task.Task_Status === 0 ? "Pending" : "Completed"}
+                  </Text>
                 </Box>
               ))}
             </VStack>
