@@ -1,4 +1,4 @@
-import "./dashboardContent.css";
+import "./groupDetailsContent.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import {
@@ -22,41 +22,39 @@ import axios from "axios";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
-const CreateTaskList = () => {
+const CreateGroupList = () => {
   const navigate = useNavigate();
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [createListData, setCreateListData] = useState({
-    listName: "",
-    listDueDate: "",
+  const [createGroupListData, setCreateGroupListData] = useState({
+    groupListName: "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     // prevents the page from auto reload on submission
     e.preventDefault();
-    const { listName, listDueDate } = createListData;
+    const { groupListName } = createGroupListData;
 
     try {
-      const { data } = await axios.post("/createTaskList", { listName, listDueDate });
+      const { data } = await axios.post("/createTaskList", { groupListName });
       if (data.errMessage) {
         toast.error(data.errMessage);
       } else {
-        setCreateListData({
+        setCreateGroupListData({
           // reset fields if no error
-          listName: "",
-          listDueDate: "",
+          groupListName: "",
         });
         toast.success("List created successfully");
         navigate("/"); // navigate to login upon successfull sign up
       }
     } catch (err) {
-      console.error("List creation error:", err);
+      console.error("Group list creation error:", err);
     }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setCreateListData({
-      ...createListData,
+    setCreateGroupListData({
+      ...createGroupListData,
       [name]: value,
     });
   };
@@ -66,11 +64,18 @@ const CreateTaskList = () => {
       <ul className="create-tasklist-container">
         <li>
           <span onClick={onOpen} className="list-button">
-            New List
+            Members
           </span>
         </li>
         <li>
-          <span className="list-button">New Task</span>
+          <span onClick={onOpen} className="list-button">
+            Invite Poeple
+          </span>
+        </li>
+        <li>
+          <span onClick={onOpen} className="list-button">
+            New List
+          </span>
         </li>
         <li className="icon-container">
           <FontAwesomeIcon icon={faPlus} size="lg" />
@@ -90,22 +95,10 @@ const CreateTaskList = () => {
                   <Input
                     bg="#E3E3E3"
                     type="text"
-                    name="listName"
+                    name="groupListName"
                     color="black"
                     placeholder="list name"
-                    value={createListData.listName}
-                    onChange={handleInputChange}
-                  />
-                </FormControl>
-
-                <FormControl>
-                  <FormLabel>Due date</FormLabel>
-                  <Input
-                    bg="#E3E3E3"
-                    type="date"
-                    name="listDueDate"
-                    color="black"
-                    value={createListData.listDueDate}
+                    value={createGroupListData.groupListName}
                     onChange={handleInputChange}
                   />
                 </FormControl>
@@ -137,4 +130,4 @@ const CreateTaskList = () => {
   );
 };
 
-export default CreateTaskList;
+export default CreateGroupList;

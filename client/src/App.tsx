@@ -6,8 +6,8 @@ import { Toaster } from "react-hot-toast";
 import { UserContextProvider } from "../context/userContext.tsx";
 import Layout from "./layout.tsx";
 import Dashboard from "./pages/dashboard/dashboard";
-import CreateGroup from "./pages/createGroup/createGroup";
-import MyGroups from "./pages/myGroups/myGroups";
+import MyGroupsPage from "./pages/myGroupsPage/myGroupsPage.tsx";
+import GroupDetails from "./pages/groupDetails/groupDetails.tsx";
 import JoinedGroups from "./pages/joinedGroups/joinedGroups";
 import Settings from "./pages/settings/settings";
 import SignUp from "./pages/passport/signup.tsx";
@@ -25,8 +25,8 @@ function App() {
           {/* Wrap all protected pages inside Layout */}
           <Route element={<Layout />}>
             <Route path="/" element={<Dashboard />} />
-            <Route path="/CreateGroup" element={<CreateGroup />} />
-            <Route path="/MyGroups" element={<MyGroups />} />
+            <Route path="/MyGroups" element={<MyGroupsPage />} />
+            <Route path="/MyGroups/:groupName" element={<GroupDetails />} />
             <Route path="/JoinedGroups" element={<JoinedGroups />} />
             <Route path="/Settings" element={<Settings />} />
           </Route>

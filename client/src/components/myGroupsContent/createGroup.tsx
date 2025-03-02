@@ -1,4 +1,4 @@
-import "./dashboardContent.css";
+import "./myGroupsContent.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import {
@@ -22,56 +22,52 @@ import axios from "axios";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
-const CreateTaskList = () => {
+const AddGroup = () => {
   const navigate = useNavigate();
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [createListData, setCreateListData] = useState({
-    listName: "",
-    listDueDate: "",
+  const [createGroupData, setCreateGroupData] = useState({
+    groupName: "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     // prevents the page from auto reload on submission
     e.preventDefault();
-    const { listName, listDueDate } = createListData;
+    const { groupName } = createGroupData;
 
     try {
-      const { data } = await axios.post("/createTaskList", { listName, listDueDate });
+      const { data } = await axios.post("/createGroup", { groupName });
       if (data.errMessage) {
         toast.error(data.errMessage);
       } else {
-        setCreateListData({
+        setCreateGroupData({
           // reset fields if no error
-          listName: "",
-          listDueDate: "",
+          groupName: "",
         });
-        toast.success("List created successfully");
+        toast.success("Group created successfully");
         navigate("/"); // navigate to login upon successfull sign up
       }
     } catch (err) {
-      console.error("List creation error:", err);
+      console.error("Group creation error:", err);
     }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setCreateListData({
-      ...createListData,
+    setCreateGroupData({
+      ...createGroupData,
       [name]: value,
     });
   };
 
   return (
     <>
-      <ul className="create-tasklist-container">
+      <ul className="create-group-container">
         <li>
-          <span onClick={onOpen} className="list-button">
-            New List
+          <span onClick={onOpen} className="group-button">
+            Create Group
           </span>
         </li>
-        <li>
-          <span className="list-button">New Task</span>
-        </li>
+
         <li className="icon-container">
           <FontAwesomeIcon icon={faPlus} size="lg" />
         </li>
@@ -80,32 +76,21 @@ const CreateTaskList = () => {
       <Modal onClose={onClose} isOpen={isOpen} isCentered>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Create Task List</ModalHeader>
+          <ModalHeader>Create New Group</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             <form onSubmit={handleSubmit}>
               <VStack spacing={4} align="stretch">
+
                 <FormControl>
-                  <FormLabel>List name</FormLabel>
+                  <FormLabel>Group Name</FormLabel>
                   <Input
                     bg="#E3E3E3"
                     type="text"
-                    name="listName"
+                    name="groupName"
                     color="black"
                     placeholder="list name"
-                    value={createListData.listName}
-                    onChange={handleInputChange}
-                  />
-                </FormControl>
-
-                <FormControl>
-                  <FormLabel>Due date</FormLabel>
-                  <Input
-                    bg="#E3E3E3"
-                    type="date"
-                    name="listDueDate"
-                    color="black"
-                    value={createListData.listDueDate}
+                    value={createGroupData.groupName}
                     onChange={handleInputChange}
                   />
                 </FormControl>
@@ -122,7 +107,7 @@ const CreateTaskList = () => {
                     borderRadius="8px"
                     _hover={{ bg: "#166060" }}
                   >
-                    Create List
+                    Create Group
                   </Button>
                 </Center>
               </VStack>
@@ -137,4 +122,4 @@ const CreateTaskList = () => {
   );
 };
 
-export default CreateTaskList;
+export default AddGroup;

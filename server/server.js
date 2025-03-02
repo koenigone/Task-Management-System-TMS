@@ -17,6 +17,7 @@ app.use(
 // routes
 app.use("/", require('./routes/authRoutes'));
 app.use("/", require("./routes/taskRoutes"));
+app.use("/", require("./routes/groupRoutes"));
 
 // server port
 const port = 3000;

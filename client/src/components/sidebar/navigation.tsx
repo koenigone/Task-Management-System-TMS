@@ -1,6 +1,6 @@
 import "./navigation.css";
 import { useState } from "react";
-import React, { useContext } from "react";
+import { useContext } from "react";
 import { UserContext } from "../../../context/userContext";
 import { Sidebar, Menu, MenuItem, sidebarClasses } from "react-pro-sidebar";
 import { Link } from "react-router-dom";
@@ -8,7 +8,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useMediaQuery } from "@chakra-ui/react";
 import {
   faHouse,
-  faPlus,
   faChalkboardUser,
   faUsers,
   faGear,
@@ -21,8 +20,8 @@ import UserImage from "../../assets/userTempImg.png";
 const Navigation = () => {
   const { user } = useContext(UserContext);
   const [isMobile] = useMediaQuery("(max-width: 768px)"); // mobile
-  const [isTablet] = useMediaQuery("(max-width: 1299px)"); // tablet
-  const [isDesktop] = useMediaQuery("(max-width: 1300px)"); // desktop
+  // const [isTablet] = useMediaQuery("(max-width: 1299px)"); // tablet
+  // const [isDesktop] = useMediaQuery("(max-width: 1300px)"); // desktop
 
   const [collapsed, setCollapsed] = useState(true);
 
@@ -33,13 +32,6 @@ const Navigation = () => {
       icon: faHouse,
       iconSize: "21px",
       navigation: "Dashboard",
-    },
-    {
-      index: 1,
-      link: "/CreateGroup",
-      icon: faPlus,
-      iconSize: "27px",
-      navigation: "Create Group",
     },
     {
       index: 2,
