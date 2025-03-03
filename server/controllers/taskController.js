@@ -9,12 +9,12 @@ const createTaskList = async (req, res) => {
   try {
     const listID = generateListID();
     const userID = req.user.id; // Use the user ID from the decoded token
-    const { listName, listDueDate } = req.body;
+    const { listName, groupID } = req.body;
     const createdDate = new Date().toISOString().split("T")[0];
-    const groupID = null;
 
-    if (!listName || !listDueDate) {
-      return res.json({ errMessage: "Fields cannot be empty" });
+    // Check for required fields
+    if (!listName) {
+      return res.status(400).json({ errMessage: "Fields cannot be empty" });
     }
 
     const createListQuery =
@@ -25,7 +25,8 @@ const createTaskList = async (req, res) => {
       [listID, userID, listName, createdDate, groupID],
       function (error) {
         if (error) {
-          return res.json({
+          console.error("Database error:", error.message);
+          return res.status(500).json({
             errMessage: "Database error",
             error: error.message,
           });
@@ -36,7 +37,8 @@ const createTaskList = async (req, res) => {
       }
     );
   } catch (error) {
-    console.log(error);
+    console.error("Error creating task list:", error);
+    res.status(500).json({ errMessage: "Internal server error" });
   }
 };
 

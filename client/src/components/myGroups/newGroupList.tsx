@@ -1,4 +1,4 @@
-import "./groupDetailsContent.css";
+import "./myGroups.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import {
@@ -17,37 +17,50 @@ import {
   FormControl,
   Input,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { useState, useContext } from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import { GroupContext } from "../../../context/groupContext";
 
 const CreateGroupList = () => {
   const navigate = useNavigate();
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { currentGroup } = useContext(GroupContext); // Access the current group from context
   const [createGroupListData, setCreateGroupListData] = useState({
-    groupListName: "",
+    listName: "", // Ensure the state property matches the input name
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
-    // prevents the page from auto reload on submission
     e.preventDefault();
-    const { groupListName } = createGroupListData;
+    const { listName } = createGroupListData;
+
+    // Check if a group is selected
+    if (!currentGroup) {
+      toast.error("No group selected");
+      return;
+    }
 
     try {
-      const { data } = await axios.post("/createTaskList", { groupListName });
+      const { data } = await axios.post("/createTaskList", {
+        listName,
+        groupID: currentGroup.Group_ID, // Include the group ID in the payload
+      });
+
       if (data.errMessage) {
         toast.error(data.errMessage);
       } else {
         setCreateGroupListData({
-          // reset fields if no error
-          groupListName: "",
+          listName: "", // Reset the input field
         });
         toast.success("List created successfully");
-        navigate("/"); // navigate to login upon successfull sign up
+        onClose(); // Close the modal after successful creation
+        // Optionally, refresh the page or navigate to the group's page
+        navigate(`/MyGroups/${currentGroup.GroupName}`);
       }
     } catch (err) {
       console.error("Group list creation error:", err);
+      toast.error("Failed to create list");
     }
   };
 
@@ -69,7 +82,7 @@ const CreateGroupList = () => {
         </li>
         <li>
           <span onClick={onOpen} className="list-button">
-            Invite Poeple
+            Invite People
           </span>
         </li>
         <li>
@@ -95,10 +108,10 @@ const CreateGroupList = () => {
                   <Input
                     bg="#E3E3E3"
                     type="text"
-                    name="groupListName"
+                    name="listName" // Ensure this matches the state property
                     color="black"
-                    placeholder="list name"
-                    value={createGroupListData.groupListName}
+                    placeholder="List name"
+                    value={createGroupListData.listName}
                     onChange={handleInputChange}
                   />
                 </FormControl>
@@ -122,7 +135,7 @@ const CreateGroupList = () => {
             </form>
           </ModalBody>
           <ModalFooter>
-            <Button>Close</Button>
+            <Button onClick={onClose}>Close</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>

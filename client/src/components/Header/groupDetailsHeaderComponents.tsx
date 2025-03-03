@@ -1,5 +1,5 @@
 import "./header.css";
-import CreateGroupList from "../groupDetailsContent/newGroupList";
+import CreateGroupList from "../myGroups/newGroupList";
 import FilterTaskLists from "../../components/dashboardContent/filterLists";
 import {
   Button,

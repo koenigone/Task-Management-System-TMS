@@ -1,9 +1,10 @@
 import "./myGroups.css";
+import { useState, useCallback, useContext } from "react";
+import { GroupContext } from "../../../context/groupContext";
+import { MyGroupsTypes } from "./types";
 import { Flex, Box, Text, Badge, Stack } from "@chakra-ui/react";
-import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import GetMyGroups from "./getMyGroups";
-import { MyGroupsTypes } from "./types";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -13,6 +14,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 
 const MyGroups = () => {
+  const { setCurrentGroup } = useContext(GroupContext); // Use the GroupContext
   const [myGroups, setMyGroups] = useState<MyGroupsTypes[]>([]);
   const navigate = useNavigate();
 
@@ -21,8 +23,10 @@ const MyGroups = () => {
     setMyGroups(groups);
   }, []);
 
-  const handleGroupClick = (groupName: string) => {
-    navigate(`/MyGroups/${groupName}`);
+  // Handle group click
+  const handleGroupClick = (group: MyGroupsTypes) => {
+    setCurrentGroup(group); // Set the current group in the context
+    navigate(`/MyGroups/${group.GroupName}`); // Navigate to the group's page
   };
 
   return (
@@ -38,7 +42,7 @@ const MyGroups = () => {
           boxShadow="base"
           bg="white"
           _hover={{ boxShadow: "lg", cursor: "pointer" }} // Add hover effect
-          onClick={() => handleGroupClick(group.GroupName)} // Navigate on click
+          onClick={() => handleGroupClick(group)} // Pass the group object
         >
           <Box color="rgba(43, 50, 65, 0.8)">
             <Text fontWeight="bold">{group.GroupName}</Text>
