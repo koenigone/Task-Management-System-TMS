@@ -12,5 +12,6 @@ export interface TaskList {
   ListName: string;
   DueDate: string;
   CreatedDate: string;
+  Group_ID?: number;
   tasks?: Task[];
 }

@@ -1,4 +1,3 @@
-import "./dashboardContent.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faFilter,

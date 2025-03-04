@@ -28,7 +28,7 @@ function App() {
             <Route element={<Layout />}>
               <Route path="/" element={<Dashboard />} />
               <Route path="/MyGroups" element={<MyGroupsPage />} />
-              <Route path="/MyGroups/:groupName" element={<GroupDetails />} />
+              <Route path="/MyGroups/:groupID" element={<GroupDetails />} />
               <Route path="/JoinedGroups" element={<JoinedGroups />} />
               <Route path="/Settings" element={<Settings />} />
             </Route>

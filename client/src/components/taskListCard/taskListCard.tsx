@@ -8,7 +8,11 @@ import TaskDetailsModal from "./taskListDetails";
 import AddTaskModal from "./addTaskModal";
 import toast from "react-hot-toast";
 
-const TaskListCard = () => {
+interface TaskListCardProps {
+  groupID?: number; // Add groupID as an optional prop
+}
+
+const TaskListCard = ({ groupID }: TaskListCardProps) => {
   const navigate = useNavigate();
   const [taskLists, setTaskLists] = useState<TaskList[]>([]);
   const [selectedTaskList, setSelectedTaskList] = useState<TaskList | null>(null);
@@ -83,6 +87,7 @@ const TaskListCard = () => {
       try {
         const response = await axios.get("http://localhost:3000/getTaskList", {
           withCredentials: true,
+          params: { groupID }, // Pass groupID as a query parameter
         });
         setTaskLists(response.data.taskLists);
       } catch (error) {
@@ -91,7 +96,7 @@ const TaskListCard = () => {
     };
 
     fetchTaskLists();
-  }, []);
+  }, [groupID]); // Re-fetch when groupID changes
 
   return (
     <Flex wrap="wrap" gap={4}>

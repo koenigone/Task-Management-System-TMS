@@ -26,7 +26,7 @@ const MyGroups = () => {
   // Handle group click
   const handleGroupClick = (group: MyGroupsTypes) => {
     setCurrentGroup(group); // Set the current group in the context
-    navigate(`/MyGroups/${group.GroupName}`); // Navigate to the group's page
+    navigate(`/MyGroups/${group.Group_ID}`); // Navigate to the group's page
   };
 
   return (

@@ -1,6 +1,6 @@
 import "./header.css";
-import CreateTaskList from "../../components/dashboardContent/newList";
-import FilterTaskLists from "../../components/dashboardContent/filterLists";
+import CreateTaskList from "../createList/createList";
+import FilterTaskLists from "../filter/filterLists";
 import {
   Button,
   Modal,

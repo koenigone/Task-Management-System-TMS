@@ -1,4 +1,4 @@
-import "./myGroupsContent.css";
+import "./createList.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import {
@@ -17,57 +17,66 @@ import {
   FormControl,
   Input,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { useState, useContext } from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import { GroupContext } from "../../../context/groupContext";
 
-const AddGroup = () => {
+const CreateTaskList = () => {
   const navigate = useNavigate();
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [createGroupData, setCreateGroupData] = useState({
-    groupName: "",
+  const [createListData, setCreateListData] = useState({
+    listName: "",
+    listDueDate: "",
   });
 
+  const { currentGroup } = useContext(GroupContext);
+
   const handleSubmit = async (e: React.FormEvent) => {
-    // prevents the page from auto reload on submission
     e.preventDefault();
-    const { groupName } = createGroupData;
+    const { listName, listDueDate } = createListData;
 
     try {
-      const { data } = await axios.post("/createGroup", { groupName });
+      const { data } = await axios.post("/createTaskList", {
+        listName,
+        listDueDate,
+        groupID: currentGroup ? currentGroup.Group_ID : null, // Include groupID if it exists
+      });
       if (data.errMessage) {
         toast.error(data.errMessage);
       } else {
-        setCreateGroupData({
-          // reset fields if no error
-          groupName: "",
+        setCreateListData({
+          listName: "",
+          listDueDate: "",
         });
-        toast.success("Group created successfully");
-        navigate("/"); // navigate to login upon successfull sign up
+        toast.success("List created successfully");
+        navigate("/");
       }
     } catch (err) {
-      console.error("Group creation error:", err);
+      console.error("List creation error:", err);
     }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setCreateGroupData({
-      ...createGroupData,
+    setCreateListData({
+      ...createListData,
       [name]: value,
     });
   };
 
   return (
     <>
-      <ul className="create-group-container">
+      <ul className="create-tasklist-container">
         <li>
-          <span onClick={onOpen} className="group-button">
-            Create Group
+          <span onClick={onOpen} className="list-button">
+            New List
           </span>
         </li>
-
+        <li>
+          <span className="list-button">New Task</span>
+        </li>
         <li className="icon-container">
           <FontAwesomeIcon icon={faPlus} size="lg" />
         </li>
@@ -76,21 +85,32 @@ const AddGroup = () => {
       <Modal onClose={onClose} isOpen={isOpen} isCentered>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Create New Group</ModalHeader>
+          <ModalHeader>Create Task List</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             <form onSubmit={handleSubmit}>
               <VStack spacing={4} align="stretch">
-
                 <FormControl>
-                  <FormLabel>Group Name</FormLabel>
+                  <FormLabel>List name</FormLabel>
                   <Input
                     bg="#E3E3E3"
                     type="text"
-                    name="groupName"
+                    name="listName"
                     color="black"
                     placeholder="list name"
-                    value={createGroupData.groupName}
+                    value={createListData.listName}
+                    onChange={handleInputChange}
+                  />
+                </FormControl>
+
+                <FormControl>
+                  <FormLabel>Due date</FormLabel>
+                  <Input
+                    bg="#E3E3E3"
+                    type="date"
+                    name="listDueDate"
+                    color="black"
+                    value={createListData.listDueDate}
                     onChange={handleInputChange}
                   />
                 </FormControl>
@@ -107,7 +127,7 @@ const AddGroup = () => {
                     borderRadius="8px"
                     _hover={{ bg: "#166060" }}
                   >
-                    Create Group
+                    Create List
                   </Button>
                 </Center>
               </VStack>
@@ -122,4 +142,4 @@ const AddGroup = () => {
   );
 };
 
-export default AddGroup;
+export default CreateTaskList;

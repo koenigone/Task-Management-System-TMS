@@ -1,4 +1,4 @@
-import "./myGroups.css";
+import "./createGroup.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import {
@@ -17,79 +17,57 @@ import {
   FormControl,
   Input,
 } from "@chakra-ui/react";
-import { useState, useContext } from "react";
+import { useState } from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
-import { GroupContext } from "../../../context/groupContext";
 
-const CreateGroupList = () => {
+const AddGroup = () => {
   const navigate = useNavigate();
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const { currentGroup } = useContext(GroupContext); // Access the current group from context
-  const [createGroupListData, setCreateGroupListData] = useState({
-    listName: "", // Ensure the state property matches the input name
+  const [createGroupData, setCreateGroupData] = useState({
+    groupName: "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
+    // prevents the page from auto reload on submission
     e.preventDefault();
-    const { listName } = createGroupListData;
-
-    // Check if a group is selected
-    if (!currentGroup) {
-      toast.error("No group selected");
-      return;
-    }
+    const { groupName } = createGroupData;
 
     try {
-      const { data } = await axios.post("/createTaskList", {
-        listName,
-        groupID: currentGroup.Group_ID, // Include the group ID in the payload
-      });
-
+      const { data } = await axios.post("/createGroup", { groupName });
       if (data.errMessage) {
         toast.error(data.errMessage);
       } else {
-        setCreateGroupListData({
-          listName: "", // Reset the input field
+        setCreateGroupData({
+          // reset fields if no error
+          groupName: "",
         });
-        toast.success("List created successfully");
-        onClose(); // Close the modal after successful creation
-        // Optionally, refresh the page or navigate to the group's page
-        navigate(`/MyGroups/${currentGroup.GroupName}`);
+        toast.success("Group created successfully");
+        navigate("/"); // navigate to login upon successfull sign up
       }
     } catch (err) {
-      console.error("Group list creation error:", err);
-      toast.error("Failed to create list");
+      console.error("Group creation error:", err);
     }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setCreateGroupListData({
-      ...createGroupListData,
+    setCreateGroupData({
+      ...createGroupData,
       [name]: value,
     });
   };
 
   return (
     <>
-      <ul className="create-tasklist-container">
+      <ul className="create-group-container">
         <li>
-          <span onClick={onOpen} className="list-button">
-            Members
+          <span onClick={onOpen} className="group-button">
+            Create Group
           </span>
         </li>
-        <li>
-          <span onClick={onOpen} className="list-button">
-            Invite People
-          </span>
-        </li>
-        <li>
-          <span onClick={onOpen} className="list-button">
-            New List
-          </span>
-        </li>
+
         <li className="icon-container">
           <FontAwesomeIcon icon={faPlus} size="lg" />
         </li>
@@ -98,20 +76,21 @@ const CreateGroupList = () => {
       <Modal onClose={onClose} isOpen={isOpen} isCentered>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Create Task List</ModalHeader>
+          <ModalHeader>Create New Group</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             <form onSubmit={handleSubmit}>
               <VStack spacing={4} align="stretch">
+
                 <FormControl>
-                  <FormLabel>List name</FormLabel>
+                  <FormLabel>Group Name</FormLabel>
                   <Input
                     bg="#E3E3E3"
                     type="text"
-                    name="listName" // Ensure this matches the state property
+                    name="groupName"
                     color="black"
-                    placeholder="List name"
-                    value={createGroupListData.listName}
+                    placeholder="list name"
+                    value={createGroupData.groupName}
                     onChange={handleInputChange}
                   />
                 </FormControl>
@@ -128,14 +107,14 @@ const CreateGroupList = () => {
                     borderRadius="8px"
                     _hover={{ bg: "#166060" }}
                   >
-                    Create List
+                    Create Group
                   </Button>
                 </Center>
               </VStack>
             </form>
           </ModalBody>
           <ModalFooter>
-            <Button onClick={onClose}>Close</Button>
+            <Button>Close</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
@@ -143,4 +122,4 @@ const CreateGroupList = () => {
   );
 };
 
-export default CreateGroupList;
+export default AddGroup;

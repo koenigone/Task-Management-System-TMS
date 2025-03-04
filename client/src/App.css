@@ -2,7 +2,7 @@
 
 body {
     background-color: #EDEDED;
-    overflow: hidden;
+    /* overflow: hidden; */
     font-family: "Rubik", serif;
     font-optical-sizing: auto;
 }

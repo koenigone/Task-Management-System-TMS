@@ -1,6 +1,5 @@
 import "./header.css";
-import CreateTaskList from "../../components/dashboardContent/newList";
-import FilterTaskLists from "../../components/dashboardContent/filterLists";
+import FilterTaskLists from "../filter/filterLists";
 import {
   Button,
   Modal,
@@ -16,7 +15,7 @@ import {
 } from "@chakra-ui/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlusSquare } from "@fortawesome/free-solid-svg-icons";
-import CreateGroup from "../myGroupsContent/createGroup";
+import CreateGroup from "../createGroup/createGroup";
 
 const MyGroupsHeaderComponents = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();

@@ -1,8 +1,10 @@
 import "./header.css";
-import CreateGroupList from "../myGroups/newGroupList";
-import FilterTaskLists from "../../components/dashboardContent/filterLists";
+import CreateTaskList from "../createList/createList";
+import FilterTaskLists from "../filter/filterLists";
 import {
+  Box,
   Button,
+  Flex,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -16,6 +18,7 @@ import {
 } from "@chakra-ui/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlusSquare } from "@fortawesome/free-solid-svg-icons";
+import BackButton from "../backButton/backButton";
 
 const GroupDetailsHeaderComponents = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -38,14 +41,22 @@ const GroupDetailsHeaderComponents = () => {
       )}
 
       {isDesktop && (
-        <div className="desktop-header-container">
-          <div className="header-item">
-            <CreateGroupList />
-          </div>
-          <div className="header-item">
+        <Flex
+          align="center"
+          justify="space-between"
+          p={4}
+          bg="white"
+          boxShadow="sm"
+        >
+          <Box>
+            <BackButton />
+          </Box>
+
+          <Flex align="center" gap={4}>
+            <CreateTaskList />
             <FilterTaskLists />
-          </div>
-        </div>
+          </Flex>
+        </Flex>
       )}
 
       {isMobile && (
@@ -60,7 +71,7 @@ const GroupDetailsHeaderComponents = () => {
                   <FilterTaskLists />
                 </div>
                 <div className="mobile-header-item">
-                  <CreateGroupList />
+                  <CreateTaskList />
                 </div>
               </VStack>
             </ModalBody>
