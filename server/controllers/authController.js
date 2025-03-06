@@ -1,5 +1,6 @@
 const db = require("../config/db");
 const bcrypt = require("bcrypt");
+const authMiddleware = require("../middleware/authMiddleware");
 const jwt = require("jsonwebtoken");
 const { jwtSecret } = require("../config/jwt");
 
@@ -15,7 +16,7 @@ const generateUserID = () => {
 const signUpUser = async (req, res) => {
   try {
     const userID = generateUserID();
-    const { username, email, password } = req.body;
+    const { username, email, password, confirmPassword } = req.body;
 
     // Validate if all fields are filled
     if (!username || !email || !password) {
@@ -45,6 +46,12 @@ const signUpUser = async (req, res) => {
         if (password.length < 8) {
           return res.json({
             errMessage: "Password should be at least 8 characters long.",
+          });
+        }
+
+        if (password != confirmPassword) {
+          res.json({
+            errMessage: "Passwords do not match",
           });
         }
 
@@ -86,12 +93,16 @@ const loginUser = (req, res) => {
     const { password, email } = req.body;
 
     // validate if all fields are filled
-    if (!email || !password) return res.json({ errMessage: "All fields are required" });
+    if (!email || !password)
+      return res.json({ errMessage: "All fields are required" });
 
-    db.get("SELECT * FROM User WHERE User_Email = ?", [email],
+    db.get(
+      "SELECT * FROM User WHERE User_Email = ?",
+      [email],
       async (err, user) => {
         if (!user) return res.json({ errMessage: "Account doesn't exist" });
-        if (err) return res.json({ errMessage: "Database error", error: err.message });
+        if (err)
+          return res.json({ errMessage: "Database error", error: err.message });
 
         // Compare hashed password
         const isMatch = await bcrypt.compare(password, user.User_Password);
@@ -100,7 +111,7 @@ const loginUser = (req, res) => {
             errMessage: "Invalid email or password",
           });
         } else {
-          jwt.sign( // if the password matches the one in the database, then initialize jsonwebtoken cookies
+          jwt.sign(
             {
               email: user.email,
               id: user.User_ID,
@@ -141,33 +152,130 @@ const loginUser = (req, res) => {
 
 const getProfile = (req, res) => {
   const { token } = req.cookies;
-  
+
   if (token) {
     jwt.verify(token, jwtSecret, {}, (err, decoded) => {
       if (err) {
-        console.error("JWT verification error:", err); 
+        console.error("JWT verification error:", err);
         return res.status(401).json({ errMessage: "Unauthorized" });
       }
 
-      db.get("SELECT * FROM User WHERE User_ID = ?", [decoded.id], (err, user) => {
-        if (err || !user) {
-          console.error("Database error:", err);
-          return res.status(500).json({ errMessage: "Database error" });
-        }
+      db.get(
+        "SELECT * FROM User WHERE User_ID = ?",
+        [decoded.id],
+        (err, user) => {
+          if (err || !user) {
+            console.error("Database error:", err);
+            return res.status(500).json({ errMessage: "Database error" });
+          }
 
-        res.json({
-          token: token,
-          user: {
-            id: user.User_ID,
-            name: user.User_Username,
-            email: user.User_Email,
-          },
-        });
-      });
+          res.json({
+            token: token,
+            user: {
+              id: user.User_ID,
+              name: user.User_Username,
+              email: user.User_Email,
+            },
+          });
+        }
+      );
     });
   } else {
     res.json(null);
   }
 };
 
-module.exports = { test, signUpUser, loginUser, getProfile };
+const changeUsername = (req, res) => {
+  try {
+    const userID = req.user.id;
+    const { newUsername } = req.body;
+
+    if (!newUsername) {
+      res.json({ errMessage: "Username cannot be empty" });
+    }
+
+    if (newUsername.length < 5 || newUsername.length > 20) {
+      return res.json({
+        errMessage: "Username must be between 5 and 20 characters",
+      });
+    }
+
+    const changeUsernameQuery =
+      "UPDATE User SET User_Username = ? WHERE User_ID = ?;";
+
+    db.run(changeUsernameQuery, [newUsername, userID], function (error) {
+      if (error) {
+        return res.status(500).json({
+          errMessage: "Database error",
+          error: error.message,
+        });
+      }
+      // Check if any rows were affected
+      if (this.changes === 0) {
+        return res.status(404).json({ errMessage: "User not found" });
+      }
+      res.json({
+        message: "Username updated successfully",
+      });
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const changePassword = async (req, res) => {
+  try {
+    const userID = req.user.id;
+    const { newPassword, confirmNewPassword } = req.body;
+
+    if (!newPassword || !confirmNewPassword) {
+      res.json({ errMessage: "Fields cannot be empty" });
+    }
+
+    if (newPassword.length < 8) {
+      return res.json({
+        errMessage: "Password should be at least 8 characters long.",
+      });
+    }
+
+    if (newPassword != confirmNewPassword) {
+      res.json({
+        errMessage: "Passwords do not match",
+      });
+    }
+
+    const saltRounds = 10;
+    const hashedNewPassword = await bcrypt.hash(newPassword, saltRounds);
+
+    const changePasswordQuery =
+      "UPDATE User SET User_Password = ? WHERE User_ID = ?;";
+
+    db.run(changePasswordQuery, [hashedNewPassword, userID], function (error) {
+      if (error) {
+        return res.status(500).json({
+          errMessage: "Database error",
+          error: error.message,
+        });
+      }
+
+      if (this.changes === 0) {
+        // Check if any rows were changed
+        return res.status(404).json({ errMessage: "User not found" });
+      }
+      res.json({
+        message: "Password updated successfully",
+      });
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+module.exports = {
+  test,
+  signUpUser,
+  loginUser,
+  getProfile,
+  changeUsername,
+  changePassword,
+};
