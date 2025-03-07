@@ -20,9 +20,6 @@ import UserImage from "../../assets/userTempImg.png";
 const Navigation = () => {
   const { user } = useContext(UserContext);
   const [isMobile] = useMediaQuery("(max-width: 768px)"); // mobile
-  // const [isTablet] = useMediaQuery("(max-width: 1299px)"); // tablet
-  // const [isDesktop] = useMediaQuery("(max-width: 1300px)"); // desktop
-
   const [collapsed, setCollapsed] = useState(true);
 
   const navigationLinks = [
@@ -59,10 +56,10 @@ const Navigation = () => {
   return (
     <>
       {/* Overlay when sidebar is open on mobile */}
-      {isMobile && !collapsed && (
+      {isMobile && (
         <div
-          className="sidebar-overlay"
-          onClick={() => setCollapsed(!collapsed)}
+          className={`sidebar-overlay ${!collapsed ? "active" : ""}`}
+          onClick={() => setCollapsed(true)}
         ></div>
       )}
       <Sidebar
@@ -79,9 +76,8 @@ const Navigation = () => {
             padding: 0,
             margin: 0,
             height: "100vh",
-            width: !collapsed ? "240px" : "90px",
-            transition: "width 0.3s ease",
-            zIndex: 10,
+            transition: "width 0.3s ease, transform 0.3s ease",
+            zIndex: 10, /* Lower than overlay */
           },
         }}
       >

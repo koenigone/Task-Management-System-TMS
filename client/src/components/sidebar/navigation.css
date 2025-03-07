@@ -1,6 +1,48 @@
 /* Sidebar styles */
+.sidebar {
+  width: 240px; /* Default width for expanded state */
+  transition: width 0.3s ease, transform 0.3s ease;
+  transform: translateX(0);
+}
+
+.sidebar.collapsed {
+  width: 90px; /* Width for collapsed state */
+}
+
+/* Mobile-specific styles */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 240px; /* Full width for mobile */
+    transform: translateX(-100%); /* Hide sidebar off-screen by default */
+  }
+
+  .sidebar.expanded {
+    transform: translateX(0); /* Slide sidebar into view */
+  }
+}
+
+/* Overlay for mobile */
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9; /* Ensure it covers everything */
+  opacity: 0; /* Start with 0 opacity */
+  visibility: hidden; /* Hide overlay by default */
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.sidebar-overlay.active {
+  opacity: 1; /* Show overlay */
+  visibility: visible; /* Make overlay visible */
+}
+
+/* Menu button styles */
 .sidebar .ps-menu-button {
-  color: #FFFFFF !important;
+  color: #ffffff !important;
   width: 100% !important;
 }
 
@@ -57,15 +99,4 @@
   top: 20px;
   left: 20px;
   color: black;
-}
-
-.sidebar-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 9; /* Ensure it covers everything */
-  display: block;
 }
