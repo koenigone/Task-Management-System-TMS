@@ -6,6 +6,7 @@ import { TaskList } from "./types";
 import TaskCard from "./getTaskCard";
 import TaskDetailsModal from "./taskListDetails";
 import AddTaskModal from "./addTaskModal";
+import ShareTaskListModal from "./shareListModal";
 import toast from "react-hot-toast";
 
 interface TaskListCardProps {
@@ -15,10 +16,18 @@ interface TaskListCardProps {
 const TaskListCard = ({ groupID }: TaskListCardProps) => {
   const navigate = useNavigate();
   const [taskLists, setTaskLists] = useState<TaskList[]>([]);
-  const [selectedTaskList, setSelectedTaskList] = useState<TaskList | null>(null);
+  const [selectedTaskList, setSelectedTaskList] = useState<TaskList | null>(
+    null
+  );
   const [isOpenBox, setIsOpenBox] = useState(false);
   const [isOpenAdd, setIsOpenAdd] = useState(false);
+  const [isShareOpen, setIsShareOpen] = useState(false);
   const [isMobile] = useMediaQuery("(max-width: 768px)");
+
+  const [shareListData, setShareListData] = useState({
+    listID: 0,
+    userEmail: "",
+  });
 
   const onOpenBox = (taskList: TaskList) => {
     setSelectedTaskList(taskList);
@@ -37,7 +46,29 @@ const TaskListCard = ({ groupID }: TaskListCardProps) => {
     }
     setIsOpenAdd(true);
   };
+
   const onCloseAdd = () => setIsOpenAdd(false);
+
+  const onOpenShare = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (selectedTaskList) {
+      setShareListData((prevData) => ({
+        ...prevData,
+        listID: selectedTaskList.List_ID,
+      }));
+    }
+    setIsShareOpen(true);
+  };
+
+  const onShareClose = () => setIsShareOpen(false);
+
+  const handleInputChangeShareList = (e: React.ChangeEvent<any>) => {
+    const { name, value } = e.target;
+    setShareListData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
 
   const [createTaskData, setCreateTaskData] = useState({
     listID: selectedTaskList?.List_ID || "",
@@ -45,11 +76,11 @@ const TaskListCard = ({ groupID }: TaskListCardProps) => {
     taskPriority: 1,
     taskDueDate: "",
   });
-  
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const { listID, taskDesc, taskPriority, taskDueDate } = createTaskData;
-  
+
     try {
       const { data } = await axios.post("/createTask", {
         listID,
@@ -73,7 +104,31 @@ const TaskListCard = ({ groupID }: TaskListCardProps) => {
       console.error("Adding task error:", err);
     }
   };
-  
+
+  const handleSubmitShareList = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const { listID, userEmail } = shareListData;
+
+    try {
+      const { data } = await axios.post("/inviteByEmail", {
+        listID,
+        userEmail,
+      });
+      if (data.errMessage) {
+        toast.error(data.errMessage + "sldfkjsof");
+      } else {
+        setShareListData({
+          listID,
+          userEmail,
+        });
+        toast.success(`Invite Sent to ${userEmail}`);
+        navigate("/");
+      }
+    } catch (err) {
+      toast.error("Invite error" + err);
+    }
+  };
+
   const handleInputChange = (e: React.ChangeEvent<any>) => {
     const { name, value } = e.target;
     setCreateTaskData((prevData) => ({
@@ -87,7 +142,7 @@ const TaskListCard = ({ groupID }: TaskListCardProps) => {
       try {
         const response = await axios.get("http://localhost:3000/getTaskList", {
           withCredentials: true,
-          params: { groupID }, // Pass groupID as a query parameter
+          params: { groupID },
         });
         setTaskLists(response.data.taskLists);
       } catch (error) {
@@ -96,7 +151,7 @@ const TaskListCard = ({ groupID }: TaskListCardProps) => {
     };
 
     fetchTaskLists();
-  }, [groupID]); // Re-fetch when groupID changes
+  }, [groupID]);
 
   return (
     <Flex wrap="wrap" gap={4}>
@@ -114,6 +169,7 @@ const TaskListCard = ({ groupID }: TaskListCardProps) => {
         onClose={onCloseBox}
         selectedTaskList={selectedTaskList}
         onOpenAdd={onOpenAdd}
+        onOpenShare={onOpenShare}
       />
 
       <AddTaskModal
@@ -122,6 +178,14 @@ const TaskListCard = ({ groupID }: TaskListCardProps) => {
         createTaskData={createTaskData}
         handleInputChange={handleInputChange}
         handleSubmit={handleSubmit}
+      />
+
+      <ShareTaskListModal
+        isOpenShare={isShareOpen}
+        onCloseShare={onShareClose}
+        shareListData={shareListData}
+        handleInputChangeShareList={handleInputChangeShareList}
+        handleSubmitShareList={handleSubmitShareList}
       />
     </Flex>
   );

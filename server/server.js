@@ -9,8 +9,8 @@ app.use(cookieParser());
 app.use(express.urlencoded({ extended: false }));
 app.use(
   cors({
-    origin: "http://localhost:5173", // Adjust for frontend
-    credentials: true,               // Enable cookies and authentication headers
+    origin: "http://localhost:5173",
+    credentials: true,
   })
 );
 
@@ -18,6 +18,7 @@ app.use(
 app.use("/", require('./routes/authRoutes'));
 app.use("/", require("./routes/taskRoutes"));
 app.use("/", require("./routes/groupRoutes"));
+app.use("/", require("./routes/shareRoutes"));
 
 // server port
 const port = 3000;

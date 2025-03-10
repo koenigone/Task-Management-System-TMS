@@ -9,6 +9,7 @@ import Layout from "./layout.tsx";
 import Dashboard from "./pages/dashboard/dashboard";
 import MyGroupsPage from "./pages/myGroupsPage/myGroupsPage.tsx";
 import GroupDetails from "./pages/groupDetails/groupDetails.tsx";
+import Invites from "./pages/Invites/invites.tsx";
 import JoinedGroups from "./pages/joinedGroups/joinedGroups";
 import Settings from "./pages/settings/settings";
 import SignUp from "./pages/passport/signup.tsx";
@@ -29,6 +30,7 @@ function App() {
               <Route path="/" element={<Dashboard />} />
               <Route path="/MyGroups" element={<MyGroupsPage />} />
               <Route path="/MyGroups/:groupID" element={<GroupDetails />} />
+              <Route path="/Invites" element={<Invites />}></Route>
               <Route path="/JoinedGroups" element={<JoinedGroups />} />
               <Route path="/Settings" element={<Settings />} />
             </Route>

@@ -1,23 +1,23 @@
 /* Sidebar styles */
 .sidebar {
-  width: 240px; /* Default width for expanded state */
+  width: 240px;
   transition: width 0.3s ease, transform 0.3s ease;
   transform: translateX(0);
 }
 
 .sidebar.collapsed {
-  width: 90px; /* Width for collapsed state */
+  width: 90px;
 }
 
 /* Mobile-specific styles */
 @media (max-width: 768px) {
   .sidebar {
-    width: 240px; /* Full width for mobile */
-    transform: translateX(-100%); /* Hide sidebar off-screen by default */
+    width: 240px;
+    transform: translateX(-100%);
   }
 
   .sidebar.expanded {
-    transform: translateX(0); /* Slide sidebar into view */
+    transform: translateX(0);
   }
 }
 
@@ -29,15 +29,15 @@
   width: 100vw;
   height: 100vh;
   background: rgba(0, 0, 0, 0.5);
-  z-index: 9; /* Ensure it covers everything */
-  opacity: 0; /* Start with 0 opacity */
-  visibility: hidden; /* Hide overlay by default */
+  z-index: 9;
+  opacity: 0;
+  visibility: hidden;
   transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
 .sidebar-overlay.active {
-  opacity: 1; /* Show overlay */
-  visibility: visible; /* Make overlay visible */
+  opacity: 1;
+  visibility: visible;
 }
 
 /* Menu button styles */

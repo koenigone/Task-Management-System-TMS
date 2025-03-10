@@ -48,13 +48,7 @@ const signUpUser = async (req, res) => {
             errMessage: "Password should be at least 8 characters long.",
           });
         }
-
-        if (password != confirmPassword) {
-          res.json({
-            errMessage: "Passwords do not match",
-          });
-        }
-
+        
         // Hashing password using bcrypt
         const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(password, saltRounds);

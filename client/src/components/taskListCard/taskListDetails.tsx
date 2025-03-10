@@ -11,8 +11,10 @@ import {
   VStack,
   Text,
   Box,
+  Flex,
+  Tooltip
 } from "@chakra-ui/react";
-import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faUserPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 interface TaskDetailsModalProps {
@@ -20,6 +22,7 @@ interface TaskDetailsModalProps {
   onClose: () => void;
   selectedTaskList: TaskList | null;
   onOpenAdd: (e: React.MouseEvent) => void;
+  onOpenShare: (e: React.MouseEvent) => void;
 }
 
 const TaskDetailsModal = ({
@@ -27,6 +30,7 @@ const TaskDetailsModal = ({
   onClose,
   selectedTaskList,
   onOpenAdd,
+  onOpenShare
 }: TaskDetailsModalProps) => {
   return (
     <Modal onClose={onClose} isOpen={isOpen} isCentered>
@@ -39,9 +43,6 @@ const TaskDetailsModal = ({
           m={5}
         >
           {selectedTaskList?.ListName}{" "}
-          <Button onClick={onOpenAdd}>
-            <FontAwesomeIcon icon={faPlus} />
-          </Button>
         </ModalHeader>
         <ModalCloseButton />
         <ModalBody>
@@ -62,7 +63,21 @@ const TaskDetailsModal = ({
           </VStack>
         </ModalBody>
         <ModalFooter>
-          <Button onClick={onClose}>Close</Button>
+          <Flex justify="space-between" align="center" width="100%">
+            <Flex gap={2}>
+              <Tooltip label="Add tasks" placement="top" hasArrow>
+                <Button onClick={onOpenAdd}>
+                  <FontAwesomeIcon icon={faPlus} />
+                </Button>
+              </Tooltip>
+              <Tooltip label="Invite people to list" placement="top" hasArrow>
+                <Button onClick={onOpenShare}>
+                  <FontAwesomeIcon icon={faUserPlus} />
+                </Button>
+              </Tooltip>
+            </Flex>
+            <Button onClick={onClose}>Close</Button>
+          </Flex>
         </ModalFooter>
       </ModalContent>
     </Modal>

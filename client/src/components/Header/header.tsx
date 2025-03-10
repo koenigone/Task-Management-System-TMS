@@ -1,5 +1,6 @@
 import "./header.css";
 import { useLocation } from "react-router-dom";
+import { Text } from "@chakra-ui/react";
 
 import DashboardHeaderComponents from "./dashboardHeaderComponents";
 import MyGroupsHeaderComponents from "./myGroupsHeaderComponents";
@@ -25,7 +26,7 @@ const Header = () => {
 
       {!["/", "/MyGroups"].includes(location.pathname) &&
         !location.pathname.startsWith("/Group/") && (
-          <h2>Default Header Content</h2>
+          <Text color="blue.400">Default Header Content</Text>
         )}
     </div>
   );

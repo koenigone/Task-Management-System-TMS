@@ -10,12 +10,14 @@ import {
   faHouse,
   faChalkboardUser,
   faUsers,
+  faEnvelope,
   faGear,
   faAnglesRight,
   faAnglesLeft,
   faSignOutAlt,
 } from "@fortawesome/free-solid-svg-icons";
 import UserImage from "../../assets/userTempImg.png";
+import { icon } from "leaflet";
 
 const Navigation = () => {
   const { user } = useContext(UserContext);
@@ -39,13 +41,20 @@ const Navigation = () => {
     },
     {
       index: 3,
+      link: "/Invites",
+      icon: faEnvelope,
+      iconSize: "23",
+      navigation: " Invites"
+    },
+    {
+      index: 4,
       link: "/JoinedGroups",
       icon: faUsers,
       iconSize: "21px",
       navigation: "Joined Groups",
     },
     {
-      index: 4,
+      index: 5,
       link: "/Settings",
       icon: faGear,
       iconSize: "24px",
@@ -77,7 +86,7 @@ const Navigation = () => {
             margin: 0,
             height: "100vh",
             transition: "width 0.3s ease, transform 0.3s ease",
-            zIndex: 10, /* Lower than overlay */
+            zIndex: 10,
           },
         }}
       >
