@@ -110,22 +110,25 @@ const TaskListCard = ({ groupID }: TaskListCardProps) => {
     const { listID, userEmail } = shareListData;
 
     try {
-      const { data } = await axios.post("/inviteByEmail", {
+      const { data } = await axios.post("http://localhost:3000/inviteByEmail", {
         listID,
         userEmail,
       });
+
       if (data.errMessage) {
-        toast.error(data.errMessage + "sldfkjsof");
+        toast.error(data.errMessage);
       } else {
         setShareListData({
           listID,
-          userEmail,
+          userEmail: "",
         });
         toast.success(`Invite Sent to ${userEmail}`);
-        navigate("/");
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
       }
     } catch (err) {
-      toast.error("Invite error" + err);
+      toast.error("Invite error" );
     }
   };
 

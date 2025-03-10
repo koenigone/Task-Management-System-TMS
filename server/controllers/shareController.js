@@ -12,36 +12,27 @@ const inviteByEmail = (req, res) => {
 
     // Input validation
     if (!userEmail || !listID) {
-      return res.status(400).json({
-        errMessage: "All fields are required",
-      });
+      return res.json({ errMessage: "All fields are required" });
     }
 
-    const getSenderUsernameQuery =
+    const getSenderUsernameAndEmailQuery =
       "SELECT User_Username, User_Email FROM User WHERE User_ID = ?";
 
-    db.get(getSenderUsernameQuery, [senderID], (error, sender) => {
+    db.get(getSenderUsernameAndEmailQuery, [senderID], (error, sender) => {
       if (error) {
         console.error("Database error:", error.message);
-        return res.status(500).json({
-          errMessage: "Database error",
-          error: error.message,
-        });
+        return res.json({ errMessage: "Database error" });
       }
 
       if (!sender) {
-        return res.status(404).json({
-          errMessage: "Sender not found",
-        });
+        return res.json({ errMessage: "Sender not found" });
       }
 
       const senderUsername = sender.User_Username;
       const senderEmail = sender.User_Email;
 
       if (senderEmail === userEmail) {
-        return res.status(500).json({
-          errMessage: "You cannot invite yourself",
-        });
+        return res.json({ errMessage: "You cannot invite yourself" });
       }
 
       const getListNameQuery =
@@ -50,36 +41,25 @@ const inviteByEmail = (req, res) => {
       db.get(getListNameQuery, [listID], (error, list) => {
         if (error) {
           console.error("Database error:", error.message);
-          return res.status(500).json({
-            errMessage: "Database error",
-            error: error.message,
-          });
+          return res.json({ errMessage: "Database error" });
         }
 
         if (!list) {
-          return res.status(404).json({
-            errMessage: "List not found",
-          });
+          return res.json({ errMessage: "List not found" });
         }
 
-        const listName = list.ListName; // Retrieved list name
+        const listName = list.ListName;
 
-        // Step 3: Find the receiver by email
         const findUserQuery = "SELECT User_ID FROM User WHERE User_Email = ?";
 
         db.get(findUserQuery, [userEmail], (error, user) => {
           if (error) {
             console.error("Database error:", error.message);
-            return res.status(500).json({
-              errMessage: "Database error",
-              error: error.message,
-            });
+            return res.json({ errMessage: "Database error" });
           }
 
           if (!user) {
-            return res.status(404).json({
-              errMessage: "User not found",
-            });
+            return res.json({ errMessage: "User not found" });
           }
 
           const receiverID = user.User_ID;
@@ -95,10 +75,7 @@ const inviteByEmail = (req, res) => {
             function (error) {
               if (error) {
                 console.error("Database error:", error.message);
-                return res.status(500).json({
-                  errMessage: "Failed to send invite",
-                  error: error.message,
-                });
+                return res.json({ errMessage: "Failed to send invite" });
               }
 
               res.json({
@@ -112,10 +89,7 @@ const inviteByEmail = (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({
-      errMessage: "Internal server error",
-      error: error.message,
-    });
+    res.json({ errMessage: "Internal server error" });
   }
 };
 
