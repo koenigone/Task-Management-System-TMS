@@ -63,7 +63,7 @@ const TaskListCard = ({ taskList, isMobile, onOpenBox }: TaskCardProps) => {
         <HStack spacing={2} flexWrap="wrap" mb={2}>
           <Badge colorScheme="gray" borderRadius="full" p={1} px={4}>
             <FontAwesomeIcon icon={faCrown} />
-            {user?.id == taskList.User_ID ? "Leader" : "TBD"}
+            {user?.id == taskList.User_ID ? "Leader" : "Member"}
           </Badge>
 
           <Badge colorScheme="green" borderRadius="full" p={1} px={4}>

@@ -49,14 +49,19 @@ const getTaskList = (req, res) => {
     const userID = req.user.id;
     const { groupID } = req.query;
 
-    let getListQuery = "SELECT * FROM TaskList WHERE User_ID = ?";
-    const queryParams = [userID];
+    let getListQuery = `
+      SELECT DISTINCT TaskList.*
+      FROM TaskList
+      LEFT JOIN TaskListMembers ON TaskList.List_ID = TaskListMembers.List_ID
+      WHERE TaskList.User_ID = ? OR TaskListMembers.User_ID = ?
+    `;
+    const queryParams = [userID, userID];
 
     if (groupID) {
-      getListQuery += " AND Group_ID = ?";
+      getListQuery += " AND TaskList.Group_ID = ?";
       queryParams.push(groupID);
     } else {
-      getListQuery += " AND Group_ID IS NULL";
+      getListQuery += " AND (TaskList.Group_ID IS NULL OR TaskList.Group_ID IS NOT NULL)";
     }
 
     db.all(getListQuery, queryParams, (error, taskLists) => {

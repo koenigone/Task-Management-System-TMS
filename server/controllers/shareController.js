@@ -4,6 +4,10 @@ const generateInviteID = () => {
   return Math.floor(Math.random() * 90000000) + 10000000;
 };
 
+const generateTaskListMemberID = () => {
+  return Math.floor(Math.random() * 900000000) + 100000000;
+};
+
 const inviteByEmail = (req, res) => {
   try {
     const inviteID = generateInviteID();
@@ -122,7 +126,7 @@ const getInvites = (req, res) => {
 
 const acceptInvite = (req, res) => {
   try {
-    const { inviteId } = req.body;
+    const { inviteId, listID } = req.body;
 
     const updateInviteQuery =
       "UPDATE Invite SET Status = 1 WHERE Invite_ID = ?";
@@ -142,8 +146,23 @@ const acceptInvite = (req, res) => {
         });
       }
 
-      res.json({ success: true, message: "Invite accepted" });
+      const taskListMemberID = generateTaskListMemberID();
+      const userID = req.user.id;
+
+      const addToListMembersQuery = "INSERT INTO TaskListMembers (TaskListMembers_ID, User_ID, List_ID) VALUES (?, ?, ?)"
+
+      db.run(addToListMembersQuery, [taskListMemberID, userID, listID], function (error) {
+        if (error) {
+          console.error("Database error:", error.message);
+          return res.status(500).json({
+            errMessage: "Failed to fetch acceptance",
+            error: error.message,
+          });
+        }
+
+        res.json({ success: true, message: "Invite accepted" });
     });
+  });
   } catch (error) {
     console.error("Server error:", error);
     res.status(500).json({

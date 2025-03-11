@@ -17,6 +17,7 @@ interface Invite {
   Invite_ID: number;
   Sender_User_Username: string;
   TaskList_Name: string;
+  TaskList_ID: number;
   Created_At: string;
 }
 
@@ -42,25 +43,24 @@ const Invites = () => {
     console.log("Invites data updated:", getInvitesData);
   }, [getInvitesData]);
 
-  const handleAccept = async (inviteId: number) => {
+  const handleAccept = async (inviteId: number, listID: number) => {
     try {
       const response = await axios.post(
         "http://localhost:3000/acceptInvite",
-        { inviteId },
+        { inviteId, listID },
         { withCredentials: true }
       );
-
+  
       if (response.data.success) {
-        // Update the state to reflect the change in the UI
         setGetInvitesData((prevInvites) =>
           prevInvites.filter((invite) => invite.Invite_ID !== inviteId)
         );
         toast.success(response.data.message);
       } else {
-        toast.error("Failed to accept invite:", response.data.errMessage);
+        toast.error("Failed to accept invite: " + response.data.errMessage);
       }
     } catch (error) {
-      toast.error("Error accepting invite" + error);
+      toast.error("Error accepting invite: " + error);
     }
   };
 
@@ -112,7 +112,7 @@ const Invites = () => {
                   colorScheme="green"
                   size="sm"
                   mr={2}
-                  onClick={() => handleAccept(invite.Invite_ID)}
+                  onClick={() => handleAccept(invite.Invite_ID, invite.TaskList_ID)}
                 >
                   Accept
                 </Button>

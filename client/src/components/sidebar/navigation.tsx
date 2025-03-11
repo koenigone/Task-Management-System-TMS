@@ -17,7 +17,6 @@ import {
   faSignOutAlt,
 } from "@fortawesome/free-solid-svg-icons";
 import UserImage from "../../assets/userTempImg.png";
-import { icon } from "leaflet";
 
 const Navigation = () => {
   const { user } = useContext(UserContext);

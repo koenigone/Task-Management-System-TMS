@@ -19,7 +19,7 @@ router.use(
 
 router.post("/inviteByEmail", authMiddleware, inviteByEmail);
 router.get("/getInvites", authMiddleware, getInvites);
-router.post("/acceptInvite", acceptInvite);
+router.post("/acceptInvite", authMiddleware, acceptInvite);
 router.post("/denyInvite", denyInvites);
 
 module.exports = router;

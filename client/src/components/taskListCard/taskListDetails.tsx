@@ -1,4 +1,6 @@
 import { TaskList } from "./types";
+import { useContext } from "react";
+import { UserContext } from "../../../context/userContext";
 import {
   Modal,
   ModalOverlay,
@@ -12,7 +14,7 @@ import {
   Text,
   Box,
   Flex,
-  Tooltip
+  Tooltip,
 } from "@chakra-ui/react";
 import { faPlus, faUserPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -30,8 +32,10 @@ const TaskDetailsModal = ({
   onClose,
   selectedTaskList,
   onOpenAdd,
-  onOpenShare
+  onOpenShare,
 }: TaskDetailsModalProps) => {
+  const { user } = useContext(UserContext);
+
   return (
     <Modal onClose={onClose} isOpen={isOpen} isCentered>
       <ModalOverlay />
@@ -64,18 +68,20 @@ const TaskDetailsModal = ({
         </ModalBody>
         <ModalFooter>
           <Flex justify="space-between" align="center" width="100%">
-            <Flex gap={2}>
-              <Tooltip label="Add tasks" placement="top" hasArrow>
-                <Button onClick={onOpenAdd}>
-                  <FontAwesomeIcon icon={faPlus} />
-                </Button>
-              </Tooltip>
-              <Tooltip label="Invite people to list" placement="top" hasArrow>
-                <Button onClick={onOpenShare}>
-                  <FontAwesomeIcon icon={faUserPlus} />
-                </Button>
-              </Tooltip>
-            </Flex>
+            {selectedTaskList?.User_ID == user?.id && (
+              <Flex gap={2}>
+                <Tooltip label="Add tasks" placement="top" hasArrow>
+                  <Button onClick={onOpenAdd}>
+                    <FontAwesomeIcon icon={faPlus} />
+                  </Button>
+                </Tooltip>
+                <Tooltip label="Invite people to list" placement="top" hasArrow>
+                  <Button onClick={onOpenShare}>
+                    <FontAwesomeIcon icon={faUserPlus} />
+                  </Button>
+                </Tooltip>
+              </Flex>
+            )}
             <Button onClick={onClose}>Close</Button>
           </Flex>
         </ModalFooter>
