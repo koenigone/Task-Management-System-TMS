@@ -1,12 +1,17 @@
-import { useParams } from "react-router-dom";
+import { useContext } from "react";
+import { GroupContext } from "../../../context/groupContext";
 import TaskListCard from "../../components/taskListCard/taskListCard";
 
 const GroupDetails = () => {
-  const { groupID } = useParams();
+  const { currentGroup } = useContext(GroupContext);
 
   return (
     <div>
-      <TaskListCard groupID={Number(groupID)} />
+      {currentGroup ? (
+        <TaskListCard Group_ID={currentGroup.Group_ID} />
+      ) : (
+        <p>No group selected.</p>
+      )}
     </div>
   );
 };

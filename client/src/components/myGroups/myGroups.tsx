@@ -25,8 +25,8 @@ const MyGroups = () => {
 
   // Handle group click
   const handleGroupClick = (group: MyGroupsTypes) => {
-    setCurrentGroup(group); // Set the current group in the context
-    navigate(`/MyGroups/${group.Group_ID}`); // Navigate to the group's page
+    setCurrentGroup(group);
+    navigate(`/MyGroups/${group.Group_ID}`);
   };
 
   return (
@@ -41,8 +41,8 @@ const MyGroups = () => {
           width="300px"
           boxShadow="base"
           bg="white"
-          _hover={{ boxShadow: "lg", cursor: "pointer" }} // Add hover effect
-          onClick={() => handleGroupClick(group)} // Pass the group object
+          _hover={{ boxShadow: "lg", cursor: "pointer" }}
+          onClick={() => handleGroupClick(group)}
         >
           <Box color="rgba(43, 50, 65, 0.8)">
             <Text fontWeight="bold">{group.GroupName}</Text>

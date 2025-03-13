@@ -10,10 +10,10 @@ import ShareTaskListModal from "./shareListModal";
 import toast from "react-hot-toast";
 
 interface TaskListCardProps {
-  groupID?: number; // Add groupID as an optional prop
+  Group_ID?: number; // Add groupID as an optional prop
 }
 
-const TaskListCard = ({ groupID }: TaskListCardProps) => {
+const TaskListCard = ({ Group_ID }: TaskListCardProps) => {
   const navigate = useNavigate();
   const [taskLists, setTaskLists] = useState<TaskList[]>([]);
   const [selectedTaskList, setSelectedTaskList] = useState<TaskList | null>(
@@ -143,18 +143,21 @@ const TaskListCard = ({ groupID }: TaskListCardProps) => {
   useEffect(() => {
     const fetchTaskLists = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/getTaskList", {
-          withCredentials: true,
-          params: { groupID },
-        });
-        setTaskLists(response.data.taskLists);
+        if (Group_ID !== undefined && Group_ID !== null) {
+          const response = await axios.get("http://localhost:3000/getTaskList", {
+            withCredentials: true,
+            params: { Group_ID },
+          });
+          setTaskLists(response.data.taskLists);
+        }
       } catch (error) {
         console.error("Error fetching task lists:", error);
       }
     };
-
+  
     fetchTaskLists();
-  }, [groupID]);
+  }, [Group_ID]);
+  
 
   return (
     <Flex wrap="wrap" gap={4}>

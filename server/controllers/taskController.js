@@ -47,23 +47,34 @@ const createTaskList = async (req, res) => {
 const getTaskList = (req, res) => {
   try {
     const userID = req.user.id;
-    const { groupID } = req.query;
+    const { Group_ID } = req.query;
 
+    // Validate Group_ID if provided
+    if (Group_ID !== undefined && Group_ID !== null && isNaN(Number(Group_ID))) {
+      return res.status(400).json({
+        errMessage: "Invalid Group_ID",
+      });
+    }
+
+    // Base query to fetch task lists
     let getListQuery = `
       SELECT DISTINCT TaskList.*
       FROM TaskList
       LEFT JOIN TaskListMembers ON TaskList.List_ID = TaskListMembers.List_ID
-      WHERE TaskList.User_ID = ? OR TaskListMembers.User_ID = ?
+      WHERE (TaskList.User_ID = ? OR TaskListMembers.User_ID = ?)
     `;
     const queryParams = [userID, userID];
 
-    if (groupID) {
+    // Add Group_ID filter if provided
+    if (Group_ID !== undefined && Group_ID !== null) {
       getListQuery += " AND TaskList.Group_ID = ?";
-      queryParams.push(groupID);
+      queryParams.push(Group_ID);
     } else {
-      getListQuery += " AND (TaskList.Group_ID IS NULL OR TaskList.Group_ID IS NOT NULL)";
+      // Fetch task lists without a group (Group_ID is NULL)
+      getListQuery += " AND TaskList.Group_ID IS NULL";
     }
 
+    // Fetch task lists
     db.all(getListQuery, queryParams, (error, taskLists) => {
       if (error) {
         return res.status(500).json({
@@ -72,10 +83,12 @@ const getTaskList = (req, res) => {
         });
       }
 
+      // If no task lists are found, return an empty array
       if (!taskLists || taskLists.length === 0) {
         return res.json({ taskLists: [] });
       }
 
+      // Fetch tasks for each task list
       const fetchTasksForTaskLists = taskLists.map((taskList) => {
         return new Promise((resolve, reject) => {
           const getTasksQuery = "SELECT * FROM Task WHERE List_ID = ?";
@@ -84,18 +97,22 @@ const getTaskList = (req, res) => {
               reject({ errMessage: "Database error", error: error.message });
             } else {
               // Attach tasks to the task list
-              resolve({ ...taskList, tasks });
+              resolve({ ...taskList, tasks: tasks || [] });
             }
           });
         });
       });
 
+      // Resolve all promises and return the result
       Promise.all(fetchTasksForTaskLists)
         .then((taskListsWithTasks) => {
           res.json({ taskLists: taskListsWithTasks });
         })
         .catch((error) => {
-          res.status(500).json(error);
+          res.status(500).json({
+            errMessage: "Error fetching tasks",
+            error: error.message,
+          });
         });
     });
   } catch (error) {

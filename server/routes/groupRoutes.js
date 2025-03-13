@@ -4,7 +4,6 @@ const cors = require("cors");
 const {
   createGroup,
   getMyGroups,
-  getGroupTaskList,
 } = require("../controllers/groupController");
 const authMiddleware = require("../middleware/authMiddleware");
 
@@ -19,6 +18,6 @@ router.use(
 // Task list related
 router.post("/createGroup", authMiddleware, createGroup);
 router.get("/getMyGroups", authMiddleware, getMyGroups);
-router.get("/getGroupTaskLists", authMiddleware, getGroupTaskList);
+// router.get("/getGroupTaskLists", authMiddleware, getGroupTaskList);
 
 module.exports = router;
