@@ -1,3 +1,7 @@
+export interface TaskListCardProps {
+  Group_ID?: number;
+}
+
 export interface Task {
   Task_ID: number;
   Task_Desc: string;
@@ -12,6 +16,7 @@ export interface TaskList {
   ListName: string;
   DueDate: string;
   CreatedDate: string;
-  Group_ID?: number;
+  Group_ID?: number
   tasks?: Task[];
+  members?: { UserName: string }[];
 }

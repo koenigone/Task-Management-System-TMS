@@ -1,4 +1,3 @@
-import "./myGroups.css";
 import { useState, useCallback, useContext } from "react";
 import { GroupContext } from "../../../context/groupContext";
 import { MyGroupsTypes } from "./types";

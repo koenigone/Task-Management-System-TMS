@@ -1,6 +1,6 @@
 import { useContext } from "react";
-import { GroupContext } from "../../../context/groupContext";
-import TaskListCard from "../../components/taskListCard/taskListCard";
+import { GroupContext } from "../../context/groupContext";
+import TaskListCard from "../components/taskListCard/taskListCard";
 
 const GroupDetails = () => {
   const { currentGroup } = useContext(GroupContext);

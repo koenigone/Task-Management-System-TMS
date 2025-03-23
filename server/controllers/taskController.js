@@ -88,29 +88,47 @@ const getTaskList = (req, res) => {
         return res.json({ taskLists: [] });
       }
 
-      // Fetch tasks for each task list
-      const fetchTasksForTaskLists = taskLists.map((taskList) => {
+      // Fetch tasks and members for each task list
+      const fetchTasksAndMembersForTaskLists = taskLists.map((taskList) => {
         return new Promise((resolve, reject) => {
+          // Fetch tasks for the task list
           const getTasksQuery = "SELECT * FROM Task WHERE List_ID = ?";
           db.all(getTasksQuery, [taskList.List_ID], (error, tasks) => {
             if (error) {
               reject({ errMessage: "Database error", error: error.message });
             } else {
-              // Attach tasks to the task list
-              resolve({ ...taskList, tasks: tasks || [] });
+              // Fetch members for the task list
+              const getMembersQuery = `
+                SELECT User.User_Username
+                FROM TaskListMembers
+                JOIN User ON TaskListMembers.User_ID = User.User_ID
+                WHERE TaskListMembers.List_ID = ?
+              `;
+              db.all(getMembersQuery, [taskList.List_ID], (error, members) => {
+                if (error) {
+                  reject({ errMessage: "Database error", error: error.message });
+                } else {
+                  // Attach tasks and members to the task list
+                  resolve({
+                    ...taskList,
+                    tasks: tasks || [],
+                    members: members || [],
+                  });
+                }
+              });
             }
           });
         });
       });
 
       // Resolve all promises and return the result
-      Promise.all(fetchTasksForTaskLists)
-        .then((taskListsWithTasks) => {
-          res.json({ taskLists: taskListsWithTasks });
+      Promise.all(fetchTasksAndMembersForTaskLists)
+        .then((taskListsWithTasksAndMembers) => {
+          res.json({ taskLists: taskListsWithTasksAndMembers });
         })
         .catch((error) => {
           res.status(500).json({
-            errMessage: "Error fetching tasks",
+            errMessage: "Error fetching tasks or members",
             error: error.message,
           });
         });
@@ -160,8 +178,18 @@ const createTask = async (req, res) => {
   }
 };
 
+const getTaskListMembers = async (req, res) => {
+  try {
+
+  } catch (error) {
+    console.error("Error finding users:", error);
+    res.status(500).json({ errMessage: "Internal server error" });
+  }
+};
+
 module.exports = {
   createTaskList,
   getTaskList,
   createTask,
+  getTaskListMembers
 };

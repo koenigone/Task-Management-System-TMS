@@ -1,4 +1,4 @@
-import TaskListCard from "../../components/taskListCard/taskListCard";
+import TaskListCard from "../components/taskListCard/taskListCard";
 
 const Dashboard = () => {
   return (

@@ -14,44 +14,40 @@ import {
   VStack,
   Heading,
   Center,
-  InputGroup,
   InputRightElement,
+  InputGroup
 } from "@chakra-ui/react";
-import CurvedBackground from "../../components/register-components/background";
-import Information from "../../components/register-components/information";
-import InformativeIcons from "../../components/register-components/informativeIcons";
+import CurvedBackground from "../components/register-components/background";
+import Information from "../components/register-components/information";
+import InformativeIcons from "../components/register-components/informativeIcons";
 import { Link as RouterLink } from "react-router-dom";
 import { ChakraProvider } from "@chakra-ui/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
-const SignUp = () => {
+const Login = () => {
   const navigate = useNavigate();
-  const [signUpData, setSignUpData] = useState({
-    username: '',
+  const [loginData, setLoginData] = useState({
     email: '',
-    password: '',
-    confirmPassword: ''
+    password: ''
   });
   const [passwordVisible, setPasswordVisible] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => { // prevents the page from auto reload on submission
     e.preventDefault();
-    const { username, email, password } = signUpData;
+    const { email, password } = loginData;
 
     try {
-      const { data } = await axios.post("/signup", { username, email, password });
+      const { data } = await axios.post("/login", { email, password });
       if (data.errMessage) {
         toast.error(data.errMessage);
       } else {
-        setSignUpData({ // reset fields if no error
-          username: '',
+        setLoginData({ // reset fields if no error
           email: '',
           password: '',
-          confirmPassword: ''
         });
         toast.success("Sign Up Successfull!");
-        navigate('/login') // navigate to login upon successfull sign up
+        navigate('/') // navigate to login upon successfull sign up
       }
       console.log("Signup successful:", data);
 
@@ -62,8 +58,8 @@ const SignUp = () => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setSignUpData({
-      ...signUpData,
+    setLoginData({
+      ...loginData,
       [name]: value
     });
   };
@@ -77,24 +73,11 @@ const SignUp = () => {
 
         <Box className="register-container" boxShadow="lg">
           <Heading as="h3" size="lg" textAlign="center" color="#E3E3E3" fontWeight="bold" mb={4}>
-            Sign Up
+            Login
           </Heading>
 
           <form onSubmit={handleSubmit}>
             <VStack spacing={4} align="stretch">
-              <FormControl>
-                <FormLabel>Username</FormLabel>
-                <Input
-                  bg="#E3E3E3"
-                  type="text"
-                  name="username"
-                  color="black"
-                  placeholder="Enter your username"
-                  value={signUpData.username}
-                  onChange={handleInputChange}
-                />
-              </FormControl>
-
               <FormControl>
                 <FormLabel>Email</FormLabel>
                 <Input
@@ -103,7 +86,7 @@ const SignUp = () => {
                   name="email"
                   color="black"
                   placeholder="example@gmail.com"
-                  value={signUpData.email}
+                  value={loginData.email}
                   onChange={handleInputChange}
                 />
               </FormControl>
@@ -118,33 +101,19 @@ const SignUp = () => {
                     name="password"
                     color="black"
                     placeholder="Enter your password"
-                    value={signUpData.password}
+                    value={loginData.password}
                     onChange={handleInputChange}
                   />
                   <InputRightElement width="4.5rem">
-                    <Button h="1.75rem" variant="ghost" _hover={{ bg: "transparent" }} color="rgba(0, 0, 0, 0.3)" size="sm" onClick={() => setPasswordVisible(!passwordVisible)}>
-                      <FontAwesomeIcon icon={passwordVisible ? faEye : faEyeSlash } />
-                    </Button>
-                  </InputRightElement>
-                </InputGroup>
-              </FormControl>
-
-              <FormControl>
-                <FormLabel>Confirm Password</FormLabel>
-                <InputGroup>
-                  <Input
-                    defaultValue="secret"
-                    type={passwordVisible ? "text" : "password"}
-                    bg="#E3E3E3"
-                    name="confirmPassword"
-                    color="black"
-                    placeholder="Confirm password"
-                    value={signUpData.confirmPassword}
-                    onChange={handleInputChange}
-                  />
-                  <InputRightElement width="4.5rem">
-                    <Button h="1.75rem" variant="ghost" _hover={{ bg: "transparent" }} color="rgba(0, 0, 0, 0.3)" size="sm" onClick={() => setPasswordVisible(!passwordVisible)}>
-                      <FontAwesomeIcon icon={passwordVisible ? faEye : faEyeSlash } />
+                    <Button
+                      h="1.75rem"
+                      variant="ghost"
+                      _hover={{ bg: "transparent" }}
+                      color="rgba(0, 0, 0, 0.3)"
+                      size="sm"
+                      onClick={() => setPasswordVisible(!passwordVisible)}
+                    >
+                      <FontAwesomeIcon icon={passwordVisible ? faEye : faEyeSlash} />
                     </Button>
                   </InputRightElement>
                 </InputGroup>
@@ -162,14 +131,14 @@ const SignUp = () => {
                   borderRadius="8px"
                   _hover={{ bg: "#166060" }}
                 >
-                  Sign Up
+                  Login
                 </Button>
               </Center>
 
               <Text textAlign="center" color="#E3E3E3">
-                Already have an account?{" "}
-                <Link as={RouterLink} to="/login" textDecor="underline" className="navigate-link">
-                  Login
+                Don't have an account?{" "}
+                <Link as={RouterLink} to="/SignUp" textDecor="underline" className="navigate-link">
+                  Sign Up
                 </Link>
               </Text>
             </VStack>
@@ -180,4 +149,4 @@ const SignUp = () => {
   );
 };
 
-export default SignUp;
+export default Login;

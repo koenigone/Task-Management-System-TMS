@@ -9,7 +9,7 @@ const InformativeIcons = () => {
     <div className="informative-icons-container">
       <div
         className="informative-icon"
-        data-bs-toggle="tooltip" // ✅ Correct attribute for Bootstrap 5
+        data-bs-toggle="tooltip"
         data-bs-placement="top"
         title="Tooltip on top"
       >

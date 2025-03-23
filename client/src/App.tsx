@@ -1,4 +1,3 @@
-import "./App.css";
 import { ChakraProvider } from "@chakra-ui/react";
 import { Routes, Route } from "react-router-dom";
 import axios from "axios";
@@ -6,14 +5,14 @@ import { Toaster } from "react-hot-toast";
 import { UserContextProvider } from "../context/userContext.tsx";
 import { GroupContextProvider } from "../context/groupContext.tsx";
 import Layout from "./layout.tsx";
-import Dashboard from "./pages/dashboard/dashboard";
-import MyGroupsPage from "./pages/myGroupsPage/myGroupsPage.tsx";
-import GroupDetails from "./pages/groupDetails/groupDetails.tsx";
-import Invites from "./pages/Invites/invites.tsx";
-import JoinedGroups from "./pages/joinedGroups/joinedGroups";
-import Settings from "./pages/settings/settings";
-import SignUp from "./pages/passport/signup.tsx";
-import Login from "./pages/passport/login.tsx";
+import Dashboard from "./pages/dashboard";
+import MyGroupsPage from "./pages/myGroupsPage.tsx";
+import GroupDetails from "./pages/groupDetails.tsx";
+import Invites from "./pages/invites.tsx";
+import JoinedGroups from "./pages/joinedGroups.tsx";
+import Settings from "./pages/settings.tsx";
+import SignUp from "./pages/signup.tsx";
+import Login from "./pages/login.tsx";
 
 axios.defaults.baseURL = "http://localhost:3000";
 axios.defaults.withCredentials = true;
@@ -25,7 +24,6 @@ function App() {
         <ChakraProvider>
           <Toaster />
           <Routes>
-            {/* Wrap all protected pages inside Layout */}
             <Route element={<Layout />}>
               <Route path="/" element={<Dashboard />} />
               <Route path="/MyGroups" element={<MyGroupsPage />} />
@@ -35,7 +33,6 @@ function App() {
               <Route path="/Settings" element={<Settings />} />
             </Route>
 
-            {/* Auth pages (No layout) */}
             <Route path="/Signup" element={<SignUp />} />
             <Route path="/Login" element={<Login />} />
           </Routes>

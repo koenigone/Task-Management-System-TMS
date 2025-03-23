@@ -1,5 +1,3 @@
-import './joinedGroups.css'
-
 const JoinedGroups = () => {
     return(
         <div>

@@ -1,5 +1,4 @@
-import "./myGroupsPage.css";
-import MyGroups from "../../components/myGroups/myGroups";
+import MyGroups from "../components/myGroups/myGroups";
 
 const MyGroupsPage = () => {
   return (

@@ -102,7 +102,7 @@ const Invites = () => {
         </Thead>
         <Tbody>
           {getInvitesData.map((invite) => (
-            <Tr key={invite.Invite_ID}>
+            <Tr key={invite.Invite_ID} color="gray.800">
               <Td>{invite.Sender_User_Username}</Td>
               <Td>Type</Td>
               <Td>{invite.TaskList_Name}</Td>
