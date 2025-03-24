@@ -105,18 +105,6 @@ const CreateTaskList = () => {
                   />
                 </FormControl>
 
-                <FormControl>
-                  <FormLabel>Due date</FormLabel>
-                  <Input
-                    bg="gray.200"
-                    type="date"
-                    name="listDueDate"
-                    color="black"
-                    value={createListData.listDueDate}
-                    onChange={handleInputChange}
-                  />
-                </FormControl>
-
                 <Center>
                   <Button
                     type="submit"

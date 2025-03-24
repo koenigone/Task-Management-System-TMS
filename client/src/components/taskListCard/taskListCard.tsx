@@ -19,7 +19,7 @@ import AddTaskModal from "./addTaskModal";
 import ShareTaskListModal from "./shareListModal";
 import toast from "react-hot-toast";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCrown, faList, faUsers } from "@fortawesome/free-solid-svg-icons";
+import { faCrown, faHandHoldingHeart, faList, faUsers } from "@fortawesome/free-solid-svg-icons";
 
 const TaskListCard = ({ Group_ID }: TaskListCardProps) => {
   const navigate = useNavigate();
@@ -169,7 +169,7 @@ const TaskListCard = ({ Group_ID }: TaskListCardProps) => {
           bg="white"
           p={4}
           rounded="lg"
-          width={isMobile ? "100%" : "250px"}
+          width={isMobile ? "100%" : "270px"}
           border="1px solid #e2e8f0"
           onClick={() => onOpenBox(taskList)}
           display="flex"
@@ -178,7 +178,7 @@ const TaskListCard = ({ Group_ID }: TaskListCardProps) => {
           height="210px"
         >
           <Box>
-            <Text fontWeight="bold" mb={2}>
+            <Text color="gray.500" fontWeight="bold" mb={2}>
               {taskList.ListName}
             </Text>
 
@@ -191,8 +191,8 @@ const TaskListCard = ({ Group_ID }: TaskListCardProps) => {
                     alignItems="center"
                     mt={2}
                   >
-                    <Checkbox colorScheme="green">
-                      <Text noOfLines={1} maxWidth="90%">
+                    <Checkbox colorScheme="green" readOnly>
+                      <Text color="gray.500" noOfLines={1} maxWidth="90%">
                         {task.Task_Desc.substring(0, 40)}...
                       </Text>
                     </Checkbox>
@@ -207,12 +207,12 @@ const TaskListCard = ({ Group_ID }: TaskListCardProps) => {
           </Box>
 
           <Box>
-            <HStack spacing={2} flexWrap="wrap" mb={2}>
+            <HStack spacing={2} flexWrap="wrap" mb={2} justifyContent="center">
               <Tooltip label="Identity" placement="top" hasArrow>
                 <Badge colorScheme="gray" borderRadius="full" p={1} px={4} cursor="pointer">
-                  <FontAwesomeIcon icon={faCrown} />
-                  {user?.id == taskList.User_ID ? "Leader" : "Member"}
-              </Badge>
+                  <FontAwesomeIcon icon={user?.id === taskList.User_ID ? faCrown : faHandHoldingHeart} />
+                  {user?.id === taskList.User_ID ? " Leader" : " Helper"}
+                </Badge>
               </Tooltip>
 
               <Tooltip label="Number of Tasks" placement="top" hasArrow>

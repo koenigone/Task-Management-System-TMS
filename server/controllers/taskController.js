@@ -178,6 +178,52 @@ const createTask = async (req, res) => {
   }
 };
 
+const markTaskAsComplete = (req, res) => {
+  try {
+    const { taskID } = req.body;
+
+    // Step 1: Fetch the current status of the task
+    const getTaskStatusQuery = "SELECT Task_Status FROM Task WHERE Task_ID = ?;";
+    db.get(getTaskStatusQuery, [taskID], (error, row) => {
+      if (error) {
+        return res.status(500).json({
+          errMessage: "Database error",
+          error: error.message,
+        });
+      }
+
+      if (!row) {
+        return res.status(404).json({ errMessage: "Task not found" });
+      }
+
+      const currentStatus = row.Task_Status;
+      const newStatus = currentStatus === 0 ? 1 : 0;
+      
+      const updateTaskStatusQuery = "UPDATE Task SET Task_Status = ? WHERE Task_ID = ?;";
+      db.run(updateTaskStatusQuery, [newStatus, taskID], function (error) {
+        if (error) {
+          return res.status(500).json({
+            errMessage: "Database error",
+            error: error.message,
+          });
+        }
+
+        if (this.changes === 0) {
+          return res.status(404).json({ errMessage: "Task not found" });
+        }
+
+        res.json({
+          message: `Task state updated to ${newStatus === 1 ? "Completed" : "Pending"}`,
+          newStatus: newStatus,
+        });
+      });
+    });
+  } catch (error) {
+    console.error("Error changing task state", error);
+    res.status(500).json({ errMessage: "Internal server error" });
+  }
+};
+
 const getTaskListMembers = async (req, res) => {
   try {
 
@@ -191,5 +237,6 @@ module.exports = {
   createTaskList,
   getTaskList,
   createTask,
+  markTaskAsComplete,
   getTaskListMembers
 };
