@@ -191,7 +191,7 @@ const TaskListCard = ({ Group_ID }: TaskListCardProps) => {
                     alignItems="center"
                     mt={2}
                   >
-                    <Checkbox colorScheme="green" readOnly>
+                    <Checkbox colorScheme="green" readOnly isChecked={task.Task_Status === 1}>
                       <Text color="gray.500" noOfLines={1} maxWidth="90%">
                         {task.Task_Desc.substring(0, 40)}...
                       </Text>
@@ -228,8 +228,15 @@ const TaskListCard = ({ Group_ID }: TaskListCardProps) => {
               </Tooltip>
             </HStack>
 
-            <Tooltip label="Progress" hasArrow>
-              <Progress value={50} size="sm" colorScheme="teal" />
+            <Tooltip 
+              label={`${taskList.progress?.completedTasks || 0} of ${taskList.progress?.totalTasks || 0} tasks completed (${taskList.progress?.percentage || 0}%)`} 
+              hasArrow
+            >
+              <Progress 
+                value={taskList.progress?.percentage || 0} 
+                size="sm" 
+                colorScheme="teal" 
+              />
             </Tooltip>
           </Box>
         </Box>

@@ -16,7 +16,12 @@ export interface TaskList {
   ListName: string;
   DueDate: string;
   CreatedDate: string;
-  Group_ID?: number
+  Group_ID?: number;
   tasks?: Task[];
   members?: { UserName: string }[];
+  progress?: {
+    totalTasks: number;
+    completedTasks: number;
+    percentage: number;
+  };
 }

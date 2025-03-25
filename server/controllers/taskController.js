@@ -44,6 +44,7 @@ const createTaskList = async (req, res) => {
 };
 
 // Get all task lists for a user (optionally filtered by groupID)
+// Get all task lists for a user (optionally filtered by groupID)
 const getTaskList = (req, res) => {
   try {
     const userID = req.user.id;
@@ -97,6 +98,13 @@ const getTaskList = (req, res) => {
             if (error) {
               reject({ errMessage: "Database error", error: error.message });
             } else {
+              // Calculate completed tasks and progress percentage
+              const totalTasks = tasks?.length || 0;
+              const completedTasks = tasks?.filter(task => task.Task_Status === 1).length || 0;
+              const progressPercentage = totalTasks > 0 
+                ? Math.round((completedTasks / totalTasks) * 100) 
+                : 0;
+
               // Fetch members for the task list
               const getMembersQuery = `
                 SELECT User.User_Username
@@ -108,11 +116,16 @@ const getTaskList = (req, res) => {
                 if (error) {
                   reject({ errMessage: "Database error", error: error.message });
                 } else {
-                  // Attach tasks and members to the task list
+                  // Attach tasks, members, and progress data to the task list
                   resolve({
                     ...taskList,
                     tasks: tasks || [],
                     members: members || [],
+                    progress: {
+                      totalTasks,
+                      completedTasks,
+                      percentage: progressPercentage
+                    }
                   });
                 }
               });
@@ -233,10 +246,49 @@ const getTaskListMembers = async (req, res) => {
   }
 };
 
+const deleteTaskList = async (req, res) => {
+  try {
+    const { listID } = req.body;
+    
+    // First delete all tasks in the list
+    const deleteTasksQuery = "DELETE FROM Task WHERE List_ID = ?";
+    db.run(deleteTasksQuery, [listID], function(error) {
+      if (error) {
+        console.error("Error deleting tasks:", error);
+        return res.status(500).json({ errMessage: "Error deleting tasks" });
+      }
+      
+      // Then delete all list members
+      const deleteMembersQuery = "DELETE FROM TaskListMembers WHERE List_ID = ?";
+      db.run(deleteMembersQuery, [listID], function(error) {
+        if (error) {
+          console.error("Error deleting list members:", error);
+          return res.status(500).json({ errMessage: "Error deleting list members" });
+        }
+        
+        // Finally delete the list itself
+        const deleteListQuery = "DELETE FROM TaskList WHERE List_ID = ?";
+        db.run(deleteListQuery, [listID], function(error) {
+          if (error) {
+            console.error("Error deleting task list:", error);
+            return res.status(500).json({ errMessage: "Error deleting task list" });
+          }
+          
+          res.json({ message: "Task list and all related data deleted successfully" });
+        });
+      });
+    });
+  } catch (error) {
+    console.error("Error deleting task list:", error);
+    res.status(500).json({ errMessage: "Internal server error" });
+  }
+};
+
 module.exports = {
   createTaskList,
   getTaskList,
   createTask,
   markTaskAsComplete,
-  getTaskListMembers
+  getTaskListMembers,
+  deleteTaskList,
 };
