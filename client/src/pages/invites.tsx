@@ -12,12 +12,15 @@ import {
   Heading,
 } from "@chakra-ui/react";
 import toast from "react-hot-toast";
+import { formatDate } from "../components/helpers";
 
 interface Invite {
   Invite_ID: number;
   Sender_User_Username: string;
   TaskList_Name: string;
   TaskList_ID: number;
+  Group_ID: number;
+  Group_Name: string;
   Created_At: string;
 }
 
@@ -43,11 +46,11 @@ const Invites = () => {
     console.log("Invites data updated:", getInvitesData);
   }, [getInvitesData]);
 
-  const handleAccept = async (inviteId: number, listID: number) => {
+  const handleAccept = async (inviteId: number, listID: number, groupID: number) => {
     try {
       const response = await axios.post(
         "http://localhost:3000/acceptInvite",
-        { inviteId, listID },
+        { inviteId, listID, groupID }, // Send both listID and groupID
         { withCredentials: true }
       );
   
@@ -104,15 +107,15 @@ const Invites = () => {
           {getInvitesData.map((invite) => (
             <Tr key={invite.Invite_ID} color="gray.800">
               <Td>{invite.Sender_User_Username}</Td>
-              <Td>Type</Td>
-              <Td>{invite.TaskList_Name}</Td>
-              <Td>{invite.Created_At}</Td>
+              <Td>{invite.TaskList_ID ? "Task List" : "Group"}</Td>
+              <Td>{invite.TaskList_ID ? invite.TaskList_Name : invite.Group_Name}</Td>
+              <Td>{formatDate(invite.Created_At)}</Td>
               <Td>
                 <Button
                   colorScheme="green"
                   size="sm"
                   mr={2}
-                  onClick={() => handleAccept(invite.Invite_ID, invite.TaskList_ID)}
+                  onClick={() => handleAccept(invite.Invite_ID, invite.TaskList_ID, invite.Group_ID)}
                 >
                   Accept
                 </Button>

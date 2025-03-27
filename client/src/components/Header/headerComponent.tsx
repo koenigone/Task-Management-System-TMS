@@ -20,12 +20,14 @@ import {
 interface HeaderComponentProps {
   leftComponent: ReactNode;
   rightComponent: ReactNode;
+  leftComponentExtra: ReactNode;
   modalTitle: string;
 }
 
 const HeaderComponent = ({
   leftComponent,
   rightComponent,
+  leftComponentExtra,
   modalTitle,
 }: HeaderComponentProps) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -50,6 +52,7 @@ const HeaderComponent = ({
 
       {isDesktop && (
         <Flex justify="flex-end" flexGrow={1} gap={5} ml="auto">
+          <Box>{leftComponentExtra}</Box>
           <Box>{leftComponent}</Box>
           <Box>{rightComponent}</Box>
         </Flex>

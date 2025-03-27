@@ -5,6 +5,10 @@ const generateGroupID = () => {
   return Math.floor(Math.random() * 90000000) + 10000000;
 };
 
+const generateGroupMemberID = () => {
+  return Math.floor(Math.random() * 90000000) + 10000000;
+};
+
 const createGroup = async (req, res) => {
   try {
     const groupID = generateGroupID();
@@ -66,4 +70,52 @@ const getMyGroups = (req, res) => {
   }
 };
 
-module.exports = { createGroup, getMyGroups };
+const getGroupMembers = (req, res) => {
+  try {
+    const { groupID } = req.query;
+    const getGroupMembersQuery = `
+      SELECT gm.User_ID, gm.User_Username, gm.JoinDate 
+      FROM GroupMember gm
+      WHERE gm.Group_ID = ?
+    `;
+    
+    db.all(getGroupMembersQuery, [groupID], (error, members) => {
+      if (error) {
+        console.error("Database error:", error);
+        return res.status(500).json({ errMessage: "Database error" });
+      }
+      res.json({ members });
+    });
+  } catch (error) {
+    console.error("Error retrieving group members:", error);
+    res.status(500).json({ errMessage: "Internal server error" });
+  }
+};
+
+const removeGroupMember = (req, res) => {
+  try {
+    const { groupID, userID } = req.body;
+    const removeMemberQuery =
+      "DELETE FROM GroupMember WHERE Group_ID = ? AND User_ID = ?";
+
+    db.run(removeMemberQuery, [groupID, userID], function (removeError) {
+      if (removeError) {
+        console.error("Database error:", removeError);
+        return res.status(500).json({ errMessage: "Failed to remove member" });
+      }
+
+      if (this.changes === 0) {
+        return res
+          .status(404)
+          .json({ errMessage: "Member not found in group" });
+      }
+
+      res.json({ success: true, message: "Member removed successfully" });
+    });
+  } catch (error) {
+    console.error("Server error:", error);
+    res.status(500).json({ errMessage: "Internal server error" });
+  }
+};
+
+module.exports = { createGroup, getMyGroups, getGroupMembers, removeGroupMember };
