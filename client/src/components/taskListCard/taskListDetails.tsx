@@ -1,6 +1,7 @@
 import { TaskList } from "./types";
 import { useContext, useState } from "react";
 import { UserContext } from "../../../context/userContext";
+import { GroupContext } from "../../../context/groupContext";
 import { formatDate } from "../helpers";
 import {
   Modal,
@@ -23,6 +24,7 @@ import { faCheck, faPlus, faUserPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
 import toast from "react-hot-toast";
+import AssignToGroupMembers from "./assignMembersModal";
 
 interface TaskDetailsModalProps {
   isOpen: boolean;
@@ -40,12 +42,23 @@ const TaskDetailsModal = ({
   onOpenShare,
 }: TaskDetailsModalProps) => {
   const { user } = useContext(UserContext);
+  const { currentGroup } = useContext(GroupContext);
   const [isTaskLoading, setIsTaskLoading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const { 
-    isOpen: isDeleteListOpen, 
-    onOpen: onDeleteListOpen, 
-    onClose: onDeleteListClose 
+  const [members, setMembers] = useState([]);
+  const [isLoadingMembers, setIsLoadingMembers] = useState(false);
+
+  // Modal controls
+  const {
+    isOpen: isDeleteListOpen,
+    onOpen: onDeleteListOpen,
+    onClose: onDeleteListClose,
+  } = useDisclosure();
+  
+  const {
+    isOpen: isMembersOpen,
+    onOpen: onMembersOpen,
+    onClose: onMembersClose,
   } = useDisclosure();
 
   const handleMarkAsComplete = async (taskID: number) => {
@@ -53,13 +66,11 @@ const TaskDetailsModal = ({
     try {
       const response = await axios.post(
         "http://localhost:3000/markTaskAsComplete",
-        {
-          taskID: taskID,
-        }
+        { taskID }
       );
       toast.success(response.data.message);
     } catch (error) {
-      toast.error("axios error");
+      toast.error("Failed to update task status");
     } finally {
       setIsTaskLoading(false);
     }
@@ -72,18 +83,47 @@ const TaskDetailsModal = ({
     try {
       const response = await axios.post(
         "http://localhost:3000/deleteTaskList",
-        {
-          listID: selectedTaskList.List_ID,
-        }
+        { listID: selectedTaskList.List_ID }
       );
-
       toast.success(response.data.message);
       onClose();
       onDeleteListClose();
     } catch (error) {
-      toast.error("Error deleting task list" + error);
+      toast.error("Error deleting task list");
     } finally {
       setIsDeleting(false);
+    }
+  };
+
+  const fetchGroupMembers = async () => {
+    if (!currentGroup?.Group_ID) return;
+    
+    setIsLoadingMembers(true);
+    try {
+      const { data } = await axios.get(
+        "http://localhost:3000/getGroupMembers",
+        {
+          params: { groupID: currentGroup.Group_ID },
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      setMembers(data.members || []);
+    } catch (err) {
+      toast.error("Failed to fetch members");
+    } finally {
+      setIsLoadingMembers(false);
+    }
+  };
+
+  const handleOpenShare = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (selectedTaskList?.Group_ID) {
+      fetchGroupMembers();
+      onMembersOpen();
+    } else {
+      onOpenShare(e);
     }
   };
 
@@ -134,18 +174,14 @@ const TaskDetailsModal = ({
                         </Text>
                         <Button
                           size="sm"
-                          colorScheme={
-                            task.Task_Status === 0 ? "gray" : "green"
-                          }
+                          colorScheme={task.Task_Status === 0 ? "gray" : "green"}
                           leftIcon={<FontAwesomeIcon icon={faCheck} />}
                           variant={task.Task_Status === 0 ? "outline" : "solid"}
                           onClick={() => handleMarkAsComplete(task.Task_ID)}
                           isLoading={isTaskLoading}
                           loadingText="Updating..."
                         >
-                          {task.Task_Status === 0
-                            ? "Mark Complete"
-                            : "Mark Pending"}
+                          {task.Task_Status === 0 ? "Mark Complete" : "Mark Pending"}
                         </Button>
                       </Flex>
                       <Flex
@@ -162,15 +198,15 @@ const TaskDetailsModal = ({
                                 task.Task_Priority === 3
                                   ? "red"
                                   : task.Task_Priority === 2
-                                    ? "orange"
-                                    : "green"
+                                  ? "orange"
+                                  : "green"
                               }
                             >
                               {task.Task_Priority === 3
                                 ? "High"
                                 : task.Task_Priority === 2
-                                  ? "Normal"
-                                  : "Low"}
+                                ? "Normal"
+                                : "Low"}
                             </Badge>
                           </Tooltip>
                         </Text>
@@ -182,9 +218,7 @@ const TaskDetailsModal = ({
                         <Text>
                           <Tooltip label="Status" hasArrow>
                             <Badge
-                              colorScheme={
-                                task.Task_Status === 0 ? "yellow" : "green"
-                              }
+                              colorScheme={task.Task_Status === 0 ? "yellow" : "green"}
                             >
                               {task.Task_Status === 0 ? "Pending" : "Completed"}
                             </Badge>
@@ -214,18 +248,24 @@ const TaskDetailsModal = ({
                       Add Task
                     </Button>
                   </Tooltip>
-                  <Tooltip
-                    label="Invite people to list"
-                    placement="top"
-                    hasArrow
-                  >
-                    <Button
-                      onClick={onOpenShare}
-                      colorScheme="teal"
-                      leftIcon={<FontAwesomeIcon icon={faUserPlus} />}
-                    >
-                      Invite
-                    </Button>
+                  <Tooltip label="Invite people to list" placement="top" hasArrow>
+                    {selectedTaskList?.Group_ID ? (
+                      <Button
+                        onClick={handleOpenShare}
+                        colorScheme="teal"
+                        leftIcon={<FontAwesomeIcon icon={faUserPlus} />}
+                      >
+                        Assign
+                      </Button>
+                    ) : (
+                      <Button
+                        onClick={onOpenShare}
+                        colorScheme="teal"
+                        leftIcon={<FontAwesomeIcon icon={faUserPlus} />}
+                      >
+                        Invite
+                      </Button>
+                    )}
                   </Tooltip>
                 </Flex>
               )}
@@ -249,27 +289,35 @@ const TaskDetailsModal = ({
       >
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader></ModalHeader>
+          <ModalHeader>Confirm Deletion</ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
-            Are you sure you want to delete this task list with it's related tasks?
+            Are you sure you want to delete this task list and all its tasks?
           </ModalBody>
-
           <ModalFooter>
             <Button
               colorScheme="red"
               onClick={handleDeleteList}
-
               isLoading={isDeleting}
               loadingText="Deleting..."
               mr={3}
             >
               Delete
             </Button>
-            <Button onClick={onClose}>Cancel</Button>
+            <Button onClick={onDeleteListClose}>Cancel</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
+
+      <AssignToGroupMembers
+        isOpen={isMembersOpen}
+        onClose={onMembersClose}
+        members={members}
+        isLoading={isLoadingMembers}
+        currentGroupID={currentGroup?.Group_ID}
+        selectedTaskList={selectedTaskList}
+        refreshMembers={fetchGroupMembers}
+      />
     </>
   );
 };

@@ -17,5 +17,7 @@ router.post("/createGroup", authMiddleware, groupController.createGroup);
 router.get("/getMyGroups", authMiddleware, groupController.getMyGroups);
 router.get("/getGroupMembers", authMiddleware, groupController.getGroupMembers);
 router.post("/removeGroupMember", authMiddleware, groupController.removeGroupMember);
+router.post("/assignTaskListToMember", authMiddleware, groupController.assignTaskListToMember);
+router.get("/getUserJoinedGroups/:userId", authMiddleware, groupController.getUserJoinedGroups);
 
 module.exports = router;

@@ -1,9 +1,11 @@
-const JoinedGroups = () => {
-    return(
-        <div>
-            <h1>Joined Groups</h1>
-        </div>
-    );
-}
+import JoinedGroupsCard from "../components/joinedGroupsCard";
 
-export default JoinedGroups
+const JoinedGroups = () => {
+  return (
+    <div>
+      <JoinedGroupsCard />
+    </div>
+  );
+};
+
+export default JoinedGroups;
