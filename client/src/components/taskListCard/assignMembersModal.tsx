@@ -64,7 +64,7 @@ const AssignToGroupMembers: React.FC<AssignToGroupMembersProps> = ({
       );
 
       if (data.errMessage) {
-        throw new Error(data.errMessage);
+        toast.error(data.errMessage);
       }
 
       toast.success(data.message);

@@ -1,4 +1,4 @@
-import JoinedGroupsCard from "../components/joinedGroupsCard";
+import JoinedGroupsCard from "../components/groups/joinedGroupsCard";
 
 const JoinedGroups = () => {
   return (

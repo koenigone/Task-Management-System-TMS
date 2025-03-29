@@ -1,12 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const cors = require("cors");
-const {
-  inviteByEmail,
-  getInvites,
-  acceptInvite,
-  denyInvites,
-} = require("../controllers/shareController");
+const shareController = require("../controllers/shareController");
 const authMiddleware = require("../middleware/authMiddleware");
 
 // middleware
@@ -17,9 +12,9 @@ router.use(
   })
 );
 
-router.post("/inviteByEmail", authMiddleware, inviteByEmail);
-router.get("/getInvites", authMiddleware, getInvites);
-router.post("/acceptInvite", authMiddleware, acceptInvite);
-router.post("/denyInvite", denyInvites);
+router.post("/inviteByEmail", authMiddleware, shareController.inviteByEmail);
+router.get("/getInvites", authMiddleware, shareController.getInvites);
+router.post("/acceptInvite", authMiddleware, shareController.acceptInvite);
+router.post("/denyInvite", shareController.denyInvites);
 
 module.exports = router;

@@ -1,50 +1,60 @@
 const db = require("../config/db");
-
-// Generate 8-digit ID for task lists and tasks
-const generateID = () => {
-  return Math.floor(Math.random() * 90000000) + 10000000;
-};
+const helpers = require("../helpers/generateID");
 
 // Create a new task list
 const createTaskList = async (req, res) => {
   try {
-    const listID = generateID();
-    const userID = req.user.id; // Use the user ID from the decoded token
+    const listID = helpers.generateEightDigitID();
+    const userID = req.user.id;
     const { listName, groupID } = req.body;
     const createdDate = new Date().toISOString().split("T")[0];
 
-    // Check for required fields
     if (!listName) {
       return res.status(400).json({ errMessage: "List name cannot be empty" });
     }
 
-    const createListQuery =
-      "INSERT INTO TaskList (List_ID, User_ID, ListName, CreatedDate, Group_ID) VALUES (?, ?, ?, ?, ?)";
+    // If groupID is provided, verify the user is the group creator
+    if (groupID) {
+      const checkGroupQuery = "SELECT User_ID FROM Groups WHERE Group_ID = ?";
 
-    db.run(
-      createListQuery,
-      [listID, userID, listName, createdDate, groupID || null], // Allow groupID to be null
-      function (error) {
-        if (error) {
-          console.error("Database error:", error.message);
-          return res.status(500).json({
-            errMessage: "Database error",
-            error: error.message,
-          });
+      db.get(checkGroupQuery, [groupID], (err, group) => {
+        if (err) {
+          console.error("Database error:", err);
+          return res.status(500).json({ errMessage: "Database error" });
         }
-        res.json({
-          message: "List created successfully",
-        });
-      }
-    );
+
+        if (!group || group.User_ID !== userID) {
+          return res.status(403).json({ errMessage: "Only the group creator can create task lists for this group" });
+        }
+
+        insertTaskList(listID, userID, listName, createdDate, groupID, res);
+      });
+    } else {
+
+      insertTaskList(listID, userID, listName, createdDate, null, res);
+    }
   } catch (error) {
     console.error("Error creating task list:", error);
     res.status(500).json({ errMessage: "Internal server error" });
   }
 };
 
-// Get all task lists for a user (optionally filtered by groupID)
-// Get all task lists for a user (optionally filtered by groupID)
+// Helper function to insert task list into the database
+const insertTaskList = (listID, userID, listName, createdDate, groupID, res) => {
+  const createListQuery =
+    "INSERT INTO TaskList (List_ID, User_ID, ListName, CreatedDate, Group_ID) VALUES (?, ?, ?, ?, ?)";
+
+  db.run(createListQuery, [listID, userID, listName, createdDate, groupID], function (error) {
+    if (error) {
+      console.error("Database error:", error.message);
+      return res.status(500).json({ errMessage: "Database error", error: error.message });
+    }
+
+    res.json({ message: "List created successfully" });
+  });
+};
+
+
 const getTaskList = (req, res) => {
   try {
     const userID = req.user.id;
@@ -155,7 +165,7 @@ const getTaskList = (req, res) => {
 // Create a new task
 const createTask = async (req, res) => {
   try {
-    const taskID = generateID();
+    const taskID = helpers.generateEightDigitID();
     const userID = req.user.id; // Use the user ID from the decoded token
     const { listID, taskDesc, taskPriority, taskDueDate } = req.body;
     const priorityToNum = Number(taskPriority); // Convert to number
@@ -249,32 +259,52 @@ const getTaskListMembers = async (req, res) => {
 const deleteTaskList = async (req, res) => {
   try {
     const { listID } = req.body;
-    
-    // First delete all tasks in the list
-    const deleteTasksQuery = "DELETE FROM Task WHERE List_ID = ?";
-    db.run(deleteTasksQuery, [listID], function(error) {
+    const userID = req.user.id; // Current user's ID
+
+    // First, check if the current user is the creator of the task list
+    const checkOwnerQuery = "SELECT User_ID FROM TaskList WHERE List_ID = ?";
+    db.get(checkOwnerQuery, [listID], (error, row) => {
       if (error) {
-        console.error("Error deleting tasks:", error);
-        return res.status(500).json({ errMessage: "Error deleting tasks" });
+        console.error("Error checking task list owner:", error);
+        return res.status(500).json({ errMessage: "Error checking task list owner" });
       }
-      
-      // Then delete all list members
-      const deleteMembersQuery = "DELETE FROM TaskListMembers WHERE List_ID = ?";
-      db.run(deleteMembersQuery, [listID], function(error) {
+
+      // If no task list is found
+      if (!row) {
+        return res.status(404).json({ errMessage: "Task list not found" });
+      }
+
+      // If the user is not the creator
+      if (row.User_ID !== userID) {
+        return res.status(403).json({ errMessage: "You are not authorized to delete this task list" });
+      }
+
+      // First delete all tasks in the list
+      const deleteTasksQuery = "DELETE FROM Task WHERE List_ID = ?";
+      db.run(deleteTasksQuery, [listID], function(error) {
         if (error) {
-          console.error("Error deleting list members:", error);
-          return res.status(500).json({ errMessage: "Error deleting list members" });
+          console.error("Error deleting tasks:", error);
+          return res.status(500).json({ errMessage: "Error deleting tasks" });
         }
-        
-        // Finally delete the list itself
-        const deleteListQuery = "DELETE FROM TaskList WHERE List_ID = ?";
-        db.run(deleteListQuery, [listID], function(error) {
+
+        // Then delete all list members
+        const deleteMembersQuery = "DELETE FROM TaskListMembers WHERE List_ID = ?";
+        db.run(deleteMembersQuery, [listID], function(error) {
           if (error) {
-            console.error("Error deleting task list:", error);
-            return res.status(500).json({ errMessage: "Error deleting task list" });
+            console.error("Error deleting list members:", error);
+            return res.status(500).json({ errMessage: "Error deleting list members" });
           }
-          
-          res.json({ message: "Task list and all related data deleted successfully" });
+
+          // Finally delete the list itself
+          const deleteListQuery = "DELETE FROM TaskList WHERE List_ID = ?";
+          db.run(deleteListQuery, [listID], function(error) {
+            if (error) {
+              console.error("Error deleting task list:", error);
+              return res.status(500).json({ errMessage: "Error deleting task list" });
+            }
+
+            res.json({ message: "Task list and all related data deleted successfully" });
+          });
         });
       });
     });

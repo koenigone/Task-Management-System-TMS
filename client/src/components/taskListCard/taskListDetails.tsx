@@ -54,7 +54,7 @@ const TaskDetailsModal = ({
     onOpen: onDeleteListOpen,
     onClose: onDeleteListClose,
   } = useDisclosure();
-  
+
   const {
     isOpen: isMembersOpen,
     onOpen: onMembersOpen,
@@ -97,7 +97,7 @@ const TaskDetailsModal = ({
 
   const fetchGroupMembers = async () => {
     if (!currentGroup?.Group_ID) return;
-    
+
     setIsLoadingMembers(true);
     try {
       const { data } = await axios.get(
@@ -174,14 +174,18 @@ const TaskDetailsModal = ({
                         </Text>
                         <Button
                           size="sm"
-                          colorScheme={task.Task_Status === 0 ? "gray" : "green"}
+                          colorScheme={
+                            task.Task_Status === 0 ? "gray" : "green"
+                          }
                           leftIcon={<FontAwesomeIcon icon={faCheck} />}
                           variant={task.Task_Status === 0 ? "outline" : "solid"}
                           onClick={() => handleMarkAsComplete(task.Task_ID)}
                           isLoading={isTaskLoading}
                           loadingText="Updating..."
                         >
-                          {task.Task_Status === 0 ? "Mark Complete" : "Mark Pending"}
+                          {task.Task_Status === 0
+                            ? "Mark Complete"
+                            : "Mark Pending"}
                         </Button>
                       </Flex>
                       <Flex
@@ -198,15 +202,15 @@ const TaskDetailsModal = ({
                                 task.Task_Priority === 3
                                   ? "red"
                                   : task.Task_Priority === 2
-                                  ? "orange"
-                                  : "green"
+                                    ? "orange"
+                                    : "green"
                               }
                             >
                               {task.Task_Priority === 3
                                 ? "High"
                                 : task.Task_Priority === 2
-                                ? "Normal"
-                                : "Low"}
+                                  ? "Normal"
+                                  : "Low"}
                             </Badge>
                           </Tooltip>
                         </Text>
@@ -218,7 +222,9 @@ const TaskDetailsModal = ({
                         <Text>
                           <Tooltip label="Status" hasArrow>
                             <Badge
-                              colorScheme={task.Task_Status === 0 ? "yellow" : "green"}
+                              colorScheme={
+                                task.Task_Status === 0 ? "yellow" : "green"
+                              }
                             >
                               {task.Task_Status === 0 ? "Pending" : "Completed"}
                             </Badge>
@@ -248,7 +254,11 @@ const TaskDetailsModal = ({
                       Add Task
                     </Button>
                   </Tooltip>
-                  <Tooltip label="Invite people to list" placement="top" hasArrow>
+                  <Tooltip
+                    label="Invite people to list"
+                    placement="top"
+                    hasArrow
+                  >
                     {selectedTaskList?.Group_ID ? (
                       <Button
                         onClick={handleOpenShare}
@@ -270,9 +280,11 @@ const TaskDetailsModal = ({
                 </Flex>
               )}
               <Flex gap={3}>
-                <Button onClick={onDeleteListOpen} background="red.300">
-                  Delete List
-                </Button>
+                {selectedTaskList?.User_ID === user?.id && (
+                  <Button onClick={onDeleteListOpen} background="red.300">
+                    Delete List
+                  </Button>
+                )}
                 <Button onClick={onClose} colorScheme="gray">
                   Close
                 </Button>

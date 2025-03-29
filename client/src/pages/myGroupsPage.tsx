@@ -1,4 +1,4 @@
-import MyGroups from "../components/myGroups/myGroups";
+import MyGroups from "../components/groups/myGroups";
 
 const MyGroupsPage = () => {
   return (

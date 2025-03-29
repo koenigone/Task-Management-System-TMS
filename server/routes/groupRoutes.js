@@ -12,7 +12,6 @@ router.use(
   })
 );
 
-// Task list related
 router.post("/createGroup", authMiddleware, groupController.createGroup);
 router.get("/getMyGroups", authMiddleware, groupController.getMyGroups);
 router.get("/getGroupMembers", authMiddleware, groupController.getGroupMembers);

@@ -1,20 +1,9 @@
 const db = require("../config/db");
-
-const generateInviteID = () => {
-  return Math.floor(Math.random() * 90000000) + 10000000;
-};
-
-const generateTaskListMemberID = () => {
-  return Math.floor(Math.random() * 900000000) + 100000000;
-};
-
-const generateGroupMemberID = () => {
-  return Math.floor(Math.random() * 900000000) + 100000000;
-};
+const helpers = require("../helpers/generateID");
 
 const inviteByEmail = (req, res) => {
   try {
-    const inviteID = generateInviteID();
+    const inviteID = helpers.generateEightDigitID();;
     const senderID = req.user.id;
     const { listID, groupID, userEmail } = req.body;
 
@@ -205,7 +194,7 @@ const acceptInvite = (req, res) => {
           }
 
           if (invite.TaskList_ID) {
-            const taskListMemberID = generateTaskListMemberID();
+            const taskListMemberID = helpers.generateEightDigitID();
             const addToListMembersQuery = `
               INSERT INTO TaskListMembers 
                 (TaskListMembers_ID, User_ID, List_ID) 
@@ -228,7 +217,7 @@ const acceptInvite = (req, res) => {
             );
           } 
           else if (invite.Group_ID) {
-            const groupMemberID = generateGroupMemberID();
+            const groupMemberID = helpers.generateEightDigitID();
             const joinDate = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
 
             const addToGroupMembersQuery = `

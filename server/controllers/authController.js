@@ -1,22 +1,13 @@
 const db = require("../config/db");
 const bcrypt = require("bcrypt");
-const authMiddleware = require("../middleware/authMiddleware");
 const jwt = require("jsonwebtoken");
+const helpers = require("../helpers/generateID");
 const { jwtSecret } = require("../config/jwt");
-
-const test = (req, res) => {
-  res.json("test is working");
-};
-
-// generate 8 digits ID for users
-const generateUserID = () => {
-  return Math.floor(Math.random() * 90000000) + 10000000;
-};
 
 const signUpUser = async (req, res) => {
   try {
-    const userID = generateUserID();
-    const { username, email, password, confirmPassword } = req.body;
+    const userID = helpers.generateEightDigitID();
+    const { username, email, password } = req.body;
 
     // Validate if all fields are filled
     if (!username || !email || !password) {
@@ -266,7 +257,6 @@ const changePassword = async (req, res) => {
 };
 
 module.exports = {
-  test,
   signUpUser,
   loginUser,
   getProfile,

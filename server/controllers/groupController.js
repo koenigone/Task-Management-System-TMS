@@ -1,14 +1,10 @@
 const db = require("../config/db");
-
-// generate 8 digits ID for users
-const generateGroupID = () => {
-  return Math.floor(Math.random() * 90000000) + 10000000;
-};
+const helpers = require("../helpers/generateID");
 
 const createGroup = async (req, res) => {
   try {
-    const groupID = generateGroupID();
-    const userID = req.user.id; // Use the user ID from the decoded token
+    const groupID = helpers.generateEightDigitID();
+    const userID = req.user.id;
     const { groupName } = req.body;
     const createdDate = new Date().toISOString().split("T")[0];
     const isActive = true;
@@ -18,7 +14,10 @@ const createGroup = async (req, res) => {
     }
 
     if (groupName.length < 5 || groupName.length > 24) {
-      return res.json({ errMessage: "Group name should be more than 4 and less than 25 characters!" });
+      return res.json({
+        errMessage:
+          "Group name should be more than 4 and less than 25 characters!",
+      });
     }
 
     const createGroupQuery =
@@ -74,7 +73,7 @@ const getGroupMembers = (req, res) => {
       FROM GroupMember gm
       WHERE gm.Group_ID = ?
     `;
-    
+
     db.all(getGroupMembersQuery, [groupID], (error, members) => {
       if (error) {
         console.error("Database error:", error);
@@ -121,7 +120,7 @@ const assignTaskListToMember = (req, res) => {
 
     // Verify requester is group admin
     const verifyAdminQuery = "SELECT User_ID FROM Groups WHERE Group_ID = ?";
-    
+
     db.get(verifyAdminQuery, [groupID], (adminError, group) => {
       if (adminError) {
         console.error("Database error:", adminError);
@@ -129,7 +128,9 @@ const assignTaskListToMember = (req, res) => {
       }
 
       if (!group || group.User_ID !== requesterID) {
-        return res.status(403).json({ errMessage: "Only group admin can assign tasks" });
+        return res
+          .status(403)
+          .json({ errMessage: "Only group admin can assign tasks" });
       }
 
       // Check if user is already assigned
@@ -137,7 +138,7 @@ const assignTaskListToMember = (req, res) => {
         SELECT * FROM TaskListMembers 
         WHERE List_ID = ? AND User_ID = ?
       `;
-      
+
       db.get(checkAssignmentQuery, [listID, userID], (checkError, existing) => {
         if (checkError) {
           console.error("Database error:", checkError);
@@ -145,11 +146,13 @@ const assignTaskListToMember = (req, res) => {
         }
 
         if (existing) {
-          return res.json({ message: "User already has access to this task list" });
+          return res.json({
+            message: "User already has access to this task list",
+          });
         }
 
         // Assign the task list
-        const assignmentID = generateTaskListMemberID();
+        const assignmentID = helpers.generateEightDigitID();
         const assignQuery = `
           INSERT INTO TaskListMembers 
             (TaskListMembers_ID, User_ID, List_ID) 
@@ -159,9 +162,14 @@ const assignTaskListToMember = (req, res) => {
         db.run(assignQuery, [assignmentID, userID, listID], (assignError) => {
           if (assignError) {
             console.error("Database error:", assignError);
-            return res.status(500).json({ errMessage: "Failed to assign task list" });
+            return res
+              .status(500)
+              .json({ errMessage: "Failed to assign task list" });
           }
-          res.json({ success: true, message: "Task list assigned successfully" });
+          res.json({
+            success: true,
+            message: "Task list assigned successfully",
+          });
         });
       });
     });
@@ -174,30 +182,37 @@ const assignTaskListToMember = (req, res) => {
 const getUserJoinedGroups = async (req, res) => {
   try {
     const userId = req.params.userId;
-    
-    const query = `
+
+    const getUserJoinedGroupsQuery = `
       SELECT g.Group_ID, g.GroupName, g.CreatedDate, g.IsActive, gm.JoinDate
       FROM Groups g
       JOIN GroupMember gm ON g.Group_ID = gm.Group_ID
       WHERE gm.User_ID = ?
     `;
-    
-    db.all(query, [userId], (error, rows) => {
+
+    db.all(getUserJoinedGroupsQuery, [userId], (error, rows) => {
       if (error) {
         console.error("Database error:", error);
-        return res.status(500).json({ 
-          error: 'Failed to fetch joined groups',
-          details: error.message 
+        return res.status(500).json({
+          error: "Failed to fetch joined groups",
+          details: error.message,
         });
       }
 
       console.log(`Found ${rows.length} groups for user ${userId}`);
-      res.json({ groups: rows }); // Changed from 'groups: groups' to 'groups: rows'
+      res.json({ groups: rows });
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Failed to fetch joined groups' });
+    res.status(500).json({ error: "Failed to fetch joined groups" });
   }
 };
 
-module.exports = { createGroup, getMyGroups, getGroupMembers, removeGroupMember, assignTaskListToMember, getUserJoinedGroups };
+module.exports = {
+  createGroup,
+  getMyGroups,
+  getGroupMembers,
+  removeGroupMember,
+  assignTaskListToMember,
+  getUserJoinedGroups,
+};

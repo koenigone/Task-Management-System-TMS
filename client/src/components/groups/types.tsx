@@ -1,4 +1,4 @@
-export interface MyGroupsTypes {
+export interface Groups {
   Group_ID: number;
   GroupName: string;
   CreatedDate: string;

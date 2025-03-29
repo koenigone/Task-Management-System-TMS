@@ -1,37 +1,56 @@
-import { useState, useCallback, useContext } from "react";
+import { Box, Text, Badge, Flex, Stack } from "@chakra-ui/react";
+import { useContext, useEffect, useState } from "react";
+import { UserContext } from "../../../context/userContext";
 import { GroupContext } from "../../../context/groupContext";
-import { MyGroupsTypes } from "./types";
-import { Flex, Box, Text, Badge, Stack } from "@chakra-ui/react";
+import { Groups } from "./types";
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import GetMyGroups from "./getMyGroups";
-
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faList,
   faUserPen,
-  faChartSimple,
+  faUserTie,
 } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import toast from "react-hot-toast";
+import { formatDate } from "../helpers";
 
-const MyGroups = () => {
-  const { setCurrentGroup } = useContext(GroupContext); // Use the GroupContext
-  const [myGroups, setMyGroups] = useState<MyGroupsTypes[]>([]);
+const JoinedGroupsCard = () => {
+  const { user } = useContext(UserContext);
+  const [groups, setGroups] = useState<Groups[]>([]);
+  const { setCurrentGroup } = useContext(GroupContext);
   const navigate = useNavigate();
 
-  // Memoize the handleGroupsFetched function
-  const handleGroupsFetched = useCallback((groups: MyGroupsTypes[]) => {
-    setMyGroups(groups);
+  useEffect(() => {
+    const fetchJoinedGroups = async () => {
+      try {
+        const { data } = await axios.get(
+          `http://localhost:3000/getUserJoinedGroups/${user?.id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+
+        const groupsArray = Array.isArray(data.groups) ? data.groups : [];
+        setGroups(groupsArray);
+      } catch (error) {
+        toast.error("Failed to fetch joined groups");
+      }
+    };
+
+    fetchJoinedGroups();
   }, []);
 
   // Handle group click
-  const handleGroupClick = (group: MyGroupsTypes) => {
+  const handleGroupClick = (group: Groups) => {
     setCurrentGroup(group);
     navigate(`/MyGroups/${group.Group_ID}`);
   };
 
   return (
     <Flex wrap="wrap" gap={4}>
-      <GetMyGroups onGroupsFetched={handleGroupsFetched} />
-      {myGroups.map((group) => (
+      {groups.map((group) => (
         <Box
           key={group.Group_ID}
           p={4}
@@ -56,13 +75,13 @@ const MyGroups = () => {
                 <FontAwesomeIcon icon={faUserPen} /> 3
               </Text>
               <Text fontSize="sm" color="gray.500">
-                <FontAwesomeIcon icon={faChartSimple} /> 40%
+                <FontAwesomeIcon icon={faUserTie} /> Member
               </Text>
             </Stack>
 
             <Flex justify="space-between" align="center" mt={2}>
               <Text fontSize="sm" color="gray.500">
-                Created: {group.CreatedDate}
+                Created: {formatDate(group.CreatedDate)}
               </Text>
               <Badge colorScheme={group.IsActive ? "green" : "red"}>
                 {group.IsActive ? "Active" : "Inactive"}
@@ -75,4 +94,4 @@ const MyGroups = () => {
   );
 };
 
-export default MyGroups;
+export default JoinedGroupsCard;
