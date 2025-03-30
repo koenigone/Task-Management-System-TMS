@@ -18,16 +18,14 @@ import {
 } from "@chakra-ui/react";
 
 interface HeaderComponentProps {
-  leftComponent: ReactNode;
-  rightComponent: ReactNode;
-  leftComponentExtra: ReactNode;
+  headerComponent: ReactNode;
+  headerComponentExtra: ReactNode;
   modalTitle: string;
 }
 
 const HeaderComponent = ({
-  leftComponent,
-  rightComponent,
-  leftComponentExtra,
+  headerComponent,
+  headerComponentExtra,
   modalTitle,
 }: HeaderComponentProps) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -52,10 +50,9 @@ const HeaderComponent = ({
 
       {isDesktop && (
         <Flex justify="flex-end" flexGrow={1} gap={5} ml="auto">
-          <Box>{leftComponentExtra}</Box>
-          <Box>{leftComponent}</Box>
-          <Box>{rightComponent}</Box>
-        </Flex>
+        <Box>{headerComponent}</Box>
+        {headerComponentExtra && <Box>{headerComponentExtra}</Box>}
+      </Flex>
       )}
 
       {isMobile && (
@@ -66,8 +63,8 @@ const HeaderComponent = ({
             <ModalCloseButton />
             <ModalBody>
               <VStack spacing={4} align="stretch">
-                <Box>{leftComponent}</Box>
-                <Box>{rightComponent}</Box>
+                <Box>{headerComponentExtra}</Box>
+                <Box>{headerComponent}</Box>
               </VStack>
             </ModalBody>
             <ModalFooter>

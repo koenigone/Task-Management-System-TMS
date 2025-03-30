@@ -13,7 +13,7 @@ import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { UserContext } from "../../../context/userContext";
-import { TaskList, TaskListCardProps } from "./types";
+import { TaskList, TaskListCardProps } from "../types";
 import TaskDetailsModal from "./taskListDetails";
 import AddTaskModal from "./addTaskModal";
 import ShareTaskListModal from "./shareListModal";
@@ -156,7 +156,7 @@ const TaskListCard = ({ Group_ID }: TaskListCardProps) => {
         navigate("/");
       }
     } catch (err) {
-      console.error("Adding task error:", err);
+      toast.error("Adding task error");
     }
   };
 

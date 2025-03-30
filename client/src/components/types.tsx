@@ -25,3 +25,18 @@ export interface TaskList {
     percentage: number;
   };
 }
+
+export interface GroupMember {
+  User_ID: number;
+  User_Username: string;
+}
+
+export interface Groups {
+  Group_ID: number;
+  GroupName: string;
+  CreatedDate: string;
+  User_ID: number;
+  IsActive: boolean;
+  TaskLists: TaskList[]; 
+  Members: GroupMember[];
+}

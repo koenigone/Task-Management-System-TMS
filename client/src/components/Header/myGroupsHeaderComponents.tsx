@@ -1,12 +1,11 @@
 import HeaderComponent from "./headerComponent";
 import CreateGroup from "../createGroup";
-import FilterMyGroups from "../filterMyGroups";
 
 const MyGroupsHeaderComponents = () => {
   return (
     <HeaderComponent
-      leftComponent={<CreateGroup />}
-      rightComponent={<FilterMyGroups />}
+      headerComponent={<CreateGroup />}
+      headerComponentExtra={null}
       modalTitle="Manage My Groups"
     />
   );

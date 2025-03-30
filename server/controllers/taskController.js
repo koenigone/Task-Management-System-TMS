@@ -176,25 +176,41 @@ const createTask = async (req, res) => {
       return res.status(400).json({ errMessage: "Fields cannot be empty" });
     }
 
-    const createTaskQuery =
-      "INSERT INTO Task (Task_ID, User_ID, List_ID, Task_Desc, Task_Priority, Task_Status, Task_DueDate) VALUES (?, ?, ?, ?, ?, ?, ?)";
-
-    db.run(
-      createTaskQuery,
-      [taskID, userID, listID, taskDesc, priorityToNum, status, taskDueDate],
-      function (error) {
-        if (error) {
-          console.error("Database error:", error.message);
-          return res.status(500).json({
-            errMessage: "Database error",
-            error: error.message,
-          });
-        }
-        res.json({
-          message: "Task added successfully!",
-        });
+    // Check if the user is the creator of the list
+    const getListCreatorQuery = "SELECT User_ID FROM TaskList WHERE List_ID = ?";
+    db.get(getListCreatorQuery, [listID], (error, list) => {
+      if (error) {
+        console.error("Database error:", error.message);
+        return res.status(500).json({ errMessage: "Database error" });
       }
-    );
+
+      if (!list) {
+        return res.status(404).json({ errMessage: "Task list not found" });
+      }
+
+      if (userID !== list.User_ID) {
+        return res.status(403).json({ errMessage: "You are not authorized to add tasks to this list" });
+      }
+
+      // Proceed with inserting the task if the user is the list creator
+      const createTaskQuery =
+        "INSERT INTO Task (Task_ID, User_ID, List_ID, Task_Desc, Task_Priority, Task_Status, Task_DueDate) VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+      db.run(
+        createTaskQuery,
+        [taskID, userID, listID, taskDesc, priorityToNum, status, taskDueDate],
+        function (error) {
+          if (error) {
+            console.error("Database error:", error.message);
+            return res.status(500).json({
+              errMessage: "Database error",
+              error: error.message,
+            });
+          }
+          res.json({ message: "Task added successfully!" });
+        }
+      );
+    });
   } catch (error) {
     console.error("Error creating task:", error);
     res.status(500).json({ errMessage: "Internal server error" });

@@ -1,7 +1,7 @@
 import { useState, useContext, useEffect } from "react";
 import { GroupContext } from "../../../context/groupContext";
-import { Groups } from "./types";
-import { Flex, Box, Text, Badge, Stack } from "@chakra-ui/react";
+import { Groups } from "../types";
+import { Flex, Box, Text, Badge, Stack, Tooltip } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -60,15 +60,21 @@ const MyGroups = () => {
 
             <Box>
               <Stack spacing={2} mt={4} ml={1}>
-                <Text fontSize="sm" color="gray.500">
-                  <FontAwesomeIcon icon={faList} /> 7
-                </Text>
-                <Text fontSize="sm" color="gray.500">
-                  <FontAwesomeIcon icon={faUserPen} /> 3
-                </Text>
-                <Text fontSize="sm" color="gray.500">
-                  <FontAwesomeIcon icon={faChartSimple} /> 40%
-                </Text>
+                <Tooltip label="Lists count" hasArrow>
+                  <Text fontSize="sm" color="gray.500">
+                    <FontAwesomeIcon icon={faList} /> {group.TaskLists.length}
+                  </Text>
+                </Tooltip>
+                <Tooltip label="Members" hasArrow>
+                  <Text fontSize="sm" color="gray.500">
+                    <FontAwesomeIcon icon={faUserPen} /> {group.Members.length}
+                  </Text>
+                </Tooltip>
+                <Tooltip label="Progress" hasArrow>
+                  <Text fontSize="sm" color="gray.500">
+                    <FontAwesomeIcon icon={faChartSimple} /> 40%
+                  </Text>
+                </Tooltip>
               </Stack>
 
               <Flex justify="space-between" align="center" mt={2}>

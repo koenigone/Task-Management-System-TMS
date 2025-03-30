@@ -1,4 +1,4 @@
-import { TaskList } from "./types";
+import { TaskList } from "../types";
 import { useContext, useState } from "react";
 import { UserContext } from "../../../context/userContext";
 import { GroupContext } from "../../../context/groupContext";

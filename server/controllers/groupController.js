@@ -46,9 +46,16 @@ const createGroup = async (req, res) => {
 const getMyGroups = (req, res) => {
   try {
     const userID = req.user.id;
-    const getMyGroupsQuery = "SELECT * FROM Groups WHERE User_ID = ?";
 
-    db.all(getMyGroupsQuery, [userID], (error, groups) => {
+    // Fetch groups the user owns or is a member of
+    const getMyGroupsQuery = `
+      SELECT DISTINCT g.*
+      FROM Groups g
+      LEFT JOIN GroupMember gm ON g.Group_ID = gm.Group_ID
+      WHERE g.User_ID = ? OR gm.User_ID = ?
+    `;
+
+    db.all(getMyGroupsQuery, [userID, userID], (error, groups) => {
       if (error) {
         return res.status(500).json({
           errMessage: "Database error",
@@ -56,8 +63,66 @@ const getMyGroups = (req, res) => {
         });
       }
 
-      // Send the fetched groups back to the client
-      res.json({ groups });
+      if (!groups || groups.length === 0) {
+        return res.json({ groups: [] });
+      }
+
+      // Fetch task lists and members for each group
+      const fetchDetailsForGroups = groups.map((group) => {
+        return new Promise((resolve, reject) => {
+          const getTaskListsQuery = `SELECT * FROM TaskList WHERE Group_ID = ?`;
+          const getMembersQuery = `
+            SELECT u.User_ID, u.User_Username
+            FROM GroupMember gm
+            JOIN User u ON gm.User_ID = u.User_ID
+            WHERE gm.Group_ID = ?
+          `;
+
+          db.all(
+            getTaskListsQuery,
+            [group.Group_ID],
+            (taskListError, taskLists) => {
+              if (taskListError) {
+                reject({
+                  errMessage: "Database error",
+                  error: taskListError.message,
+                });
+              } else {
+                db.all(
+                  getMembersQuery,
+                  [group.Group_ID],
+                  (memberError, members) => {
+                    if (memberError) {
+                      reject({
+                        errMessage: "Database error",
+                        error: memberError.message,
+                      });
+                    } else {
+                      resolve({
+                        ...group,
+                        TaskLists: taskLists || [],
+                        Members: members || [],
+                      });
+                    }
+                  }
+                );
+              }
+            }
+          );
+        });
+      });
+
+      // Resolve all promises and return the result
+      Promise.all(fetchDetailsForGroups)
+        .then((groupsWithDetails) => {
+          res.json({ groups: groupsWithDetails });
+        })
+        .catch((error) => {
+          res.status(500).json({
+            errMessage: "Error fetching task lists or members",
+            error: error.message,
+          });
+        });
     });
   } catch (error) {
     console.error("Error retrieving your groups:", error);
@@ -199,7 +264,6 @@ const getUserJoinedGroups = async (req, res) => {
         });
       }
 
-      console.log(`Found ${rows.length} groups for user ${userId}`);
       res.json({ groups: rows });
     });
   } catch (error) {
