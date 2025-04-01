@@ -272,6 +272,64 @@ const getUserJoinedGroups = async (req, res) => {
   }
 };
 
+const deleteGroup = async (req, res) => {
+  try {
+    const { groupID } = req.body;
+    const userID = req.user.id; // Current user's ID
+
+    // First, check if the current user is the creator of the group
+    const checkOwnerQuery = "SELECT User_ID FROM Groups WHERE Group_ID = ?";
+    db.get(checkOwnerQuery, [groupID], (error, row) => {
+      if (error) {
+        console.error("Error checking group owner:", error);
+        return res.status(500).json({ errMessage: "Error checking group owner" });
+      }
+
+      // If no group is found
+      if (!row) {
+        return res.status(404).json({ errMessage: "Group not found" });
+      }
+
+      // If the user is not the creator
+      if (row.User_ID !== userID) {
+        return res.status(403).json({ errMessage: "Not authorized to delete this group" });
+      }
+
+      // First delete all task lists in the group
+      const deleteListsQuery = "DELETE FROM TaskList WHERE Group_ID = ?";
+      db.run(deleteListsQuery, [groupID], function(error) {
+        if (error) {
+          console.error("Error deleting task lists:", error);
+          return res.status(500).json({ errMessage: "Error deleting task lists" });
+        }
+
+        // Then delete all group members
+        const deleteMembersQuery = "DELETE FROM GroupMember WHERE Group_ID = ?";
+        db.run(deleteMembersQuery, [groupID], function(error) {
+          if (error) {
+            console.error("Error deleting group members:", error);
+            return res.status(500).json({ errMessage: "Error deleting group members" });
+          }
+
+          // Finally delete the group itself
+          const deleteGroupQuery = "DELETE FROM Groups WHERE Group_ID = ?";
+          db.run(deleteGroupQuery, [groupID], function(error) {
+            if (error) {
+              console.error("Error deleting group:", error);
+              return res.status(500).json({ errMessage: "Error deleting group" });
+            }
+
+            res.json({ message: "Group and all related data deleted successfully" });
+          });
+        });
+      });
+    });
+  } catch (error) {
+    console.error("Error deleting group:", error);
+    res.status(500).json({ errMessage: "Internal server error" });
+  }
+};
+
 module.exports = {
   createGroup,
   getMyGroups,
@@ -279,4 +337,5 @@ module.exports = {
   removeGroupMember,
   assignTaskListToMember,
   getUserJoinedGroups,
+  deleteGroup,
 };
