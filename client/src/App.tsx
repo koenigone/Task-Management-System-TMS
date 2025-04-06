@@ -5,6 +5,7 @@ import axios from "axios";
 import { Toaster } from "react-hot-toast";
 import { UserContextProvider } from "../context/userContext.tsx";
 import { GroupContextProvider } from "../context/groupContext.tsx";
+import theme from './theme.tsx';
 import Layout from "./layout.tsx";
 import Dashboard from "./pages/dashboard";
 import MyGroupsPage from "./pages/myGroupsPage.tsx";
@@ -22,7 +23,7 @@ function App() {
   return (
     <UserContextProvider>
       <GroupContextProvider>
-        <ChakraProvider>
+        <ChakraProvider theme={theme}>
           <Toaster />
           <Routes>
             <Route element={<Layout />}>

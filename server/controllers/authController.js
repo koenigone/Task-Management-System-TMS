@@ -256,10 +256,24 @@ const changePassword = async (req, res) => {
   }
 };
 
+const signOutUser = (req, res) => {
+  try {
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: true,
+    });
+    res.json({ message: "Signed out successfully" });
+  } catch (error) {
+    console.error("Sign out error:", error);
+    res.status(500).json({ errMessage: "Internal server error" });
+  }
+};
+
 module.exports = {
   signUpUser,
   loginUser,
   getProfile,
   changeUsername,
   changePassword,
+  signOutUser
 };

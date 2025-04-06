@@ -47,15 +47,14 @@ const getMyGroups = (req, res) => {
   try {
     const userID = req.user.id;
 
-    // Fetch groups the user owns or is a member of
+    // Fetch only groups the user owns
     const getMyGroupsQuery = `
-      SELECT DISTINCT g.*
-      FROM Groups g
-      LEFT JOIN GroupMember gm ON g.Group_ID = gm.Group_ID
-      WHERE g.User_ID = ? OR gm.User_ID = ?
+      SELECT *
+      FROM Groups
+      WHERE User_ID = ?
     `;
 
-    db.all(getMyGroupsQuery, [userID, userID], (error, groups) => {
+    db.all(getMyGroupsQuery, [userID], (error, groups) => {
       if (error) {
         return res.status(500).json({
           errMessage: "Database error",
@@ -330,6 +329,24 @@ const deleteGroup = async (req, res) => {
   }
 };
 
+const changeGroupstate = async (req, res) => {
+  const { groupID, newState } = req.body;
+
+  if (groupID == null || newState == null) {
+    return res.status(400).json({ errMessage: "Missing group ID or state" });
+  }
+
+  try {
+    const sql = `UPDATE Groups SET IsActive = ? WHERE Group_ID = ?`;
+    await db.run(sql, [newState ? 1 : 0, groupID]);
+
+    res.status(200).json({ message: "Group state updated" });
+  } catch (error) {
+    console.error("Error updating group state:", error);
+    res.status(500).json({ errMessage: "Internal server error" });
+  }
+}
+
 module.exports = {
   createGroup,
   getMyGroups,
@@ -338,4 +355,5 @@ module.exports = {
   assignTaskListToMember,
   getUserJoinedGroups,
   deleteGroup,
+  changeGroupstate
 };

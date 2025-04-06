@@ -80,7 +80,7 @@ const CreateTaskList = () => {
               New List
             </ListItem>
             <ListItem mt={1}>
-              <Tooltip label="Add item" hasArrow>
+              <Tooltip label="Add Item" hasArrow>
                 <FontAwesomeIcon icon={faPlus} fontSize={20} />
               </Tooltip>
             </ListItem>

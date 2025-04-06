@@ -1,6 +1,6 @@
 import { useState, useContext } from "react";
 import { UserContext } from "../../context/userContext";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faHouse,
@@ -27,13 +27,25 @@ import {
   DrawerBody,
   VStack,
   Divider,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalCloseButton,
+  ModalBody,
+  Button,
+  ModalFooter,
 } from "@chakra-ui/react";
+import axios from "axios";
+import toast from "react-hot-toast";
 
 const Navigation = () => {
   const { user } = useContext(UserContext);
   const [isMobile] = useMediaQuery("(max-width: 768px)");
   const [collapsed, setCollapsed] = useState(true);
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const navigate = useNavigate();
+  const [isSigningOut, setIsSigningOut] = useState(false);
 
   const navigationLinks = [
     { index: 0, link: "/", icon: faHouse, iconSize: "21px", navigation: "Dashboard" },
@@ -43,6 +55,18 @@ const Navigation = () => {
     { index: 5, link: "/Settings", icon: faGear, iconSize: "24px", navigation: "Settings" },
   ];
 
+  const handleSignOut = async () => {
+    setIsSigningOut(true);
+    try {
+      await axios.post("http://localhost:3000/signOutUser", {}, { withCredentials: true });
+      navigate("/login");
+    } catch (error) {
+      toast.error("Sign out failed");
+    } finally {
+      setIsSigningOut(false);
+    }
+  };
+  
   const SidebarContent = () => (
     <Box
       bg="#2B3241"
@@ -98,13 +122,38 @@ const Navigation = () => {
         </Box>
       </VStack>
 
-      <VStack align="stretch" p={4}>
+      <VStack align="stretch" p={4} cursor="pointer">
         <Divider borderColor="#4E5B6B" />
-        <Flex align="center" p={2} height="40px" ml={1.5}>
+        <Flex align="center" p={2} height="40px" ml={1.5} onClick={onOpen}>
           <FontAwesomeIcon icon={faSignOutAlt} style={{ fontSize: "23px" }} />
           {!collapsed && <Text ml={3}>Sign Out</Text>}
         </Flex>
       </VStack>
+
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Sign Out</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Text>Are you sure you want to sign out from this account {user?.name}?</Text>
+          </ModalBody>
+          <ModalFooter>
+            <Button variant="ghost" onClick={onClose} isDisabled={isSigningOut}>
+              Cancel
+            </Button>
+            <Button
+              colorScheme="red"
+              ml={3}
+              onClick={handleSignOut}
+              isLoading={isSigningOut}
+              loadingText="Signing out..."
+            >
+              Sign Out
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </Box>
   );
 

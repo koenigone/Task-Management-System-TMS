@@ -1,7 +1,15 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { UserContext } from "../../context/userContext";
 import { GroupContext } from "../../context/groupContext";
-import { Box, HStack, List, ListItem, Text, Tooltip } from "@chakra-ui/react";
+import {
+  Box,
+  HStack,
+  List,
+  ListItem,
+  Switch,
+  Text,
+  Tooltip,
+} from "@chakra-ui/react";
 import { faGear } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
@@ -11,7 +19,7 @@ import GroupMembersModal from "./groupMembersModal";
 import DeleteGroupModal from "./deleteGroupModal";
 import { Groups } from "./types";
 
-const GroupMembers = () => {
+const GroupSettings = () => {
   const { currentGroup } = useContext(GroupContext);
   const { user } = useContext(UserContext);
   const [isInviteOpen, setIsInviteOpen] = useState(false);
@@ -20,10 +28,10 @@ const GroupMembers = () => {
   const [isLoadingMembers, setIsLoadingMembers] = useState(false);
   const [isDeleteGroupOpen, setIsDeleteGroupOpen] = useState(false);
   const [groups, setGroups] = useState<Groups[]>([]);
-
-  const [inviteData, setInviteData] = useState({
-    userEmail: "",
-  });
+  const [inviteData, setInviteData] = useState({ userEmail: "" });
+  const [isGroupActive, setIsGroupActive] = useState(
+    currentGroup?.IsActive ?? true
+  );
 
   const onInviteClose = () => setIsInviteOpen(false);
   const onInviteOpen = () => setIsInviteOpen(true);
@@ -96,6 +104,37 @@ const GroupMembers = () => {
     onDeleteGroupClose();
   };
 
+  useEffect(() => {
+    if (currentGroup) {
+      setIsGroupActive(currentGroup.IsActive);
+    }
+  }, [currentGroup]);
+
+  const handleToggleGroupActive = async () => {
+    try {
+      const newState = !isGroupActive;
+  
+      await axios.post(
+        "http://localhost:3000/changeGroupState",
+        {
+          groupID: currentGroup?.Group_ID,
+          newState,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+  
+      setIsGroupActive(newState);
+      toast.success(`Group is now ${newState ? "Active" : "Inactive"}`);
+    } catch (error) {
+      console.error("Failed to change group state:", error);
+      toast.error("Failed to change group state");
+    }
+  };  
+
   if (currentGroup?.User_ID !== user?.id) return null;
 
   return (
@@ -106,9 +145,16 @@ const GroupMembers = () => {
       p={2}
       fontWeight="bold"
       borderRadius="md"
-      w={420}
+      w={520}
     >
       <List display="flex" justifyContent="space-around" alignItems="center">
+        <ListItem cursor="pointer" onClick={handleToggleGroupActive}>
+          <HStack spacing={4}>
+            <Text>{isGroupActive ? "Active" : "Inactive"}</Text>
+            <Switch size="md" isChecked={isGroupActive} readOnly />
+          </HStack>
+        </ListItem>
+
         <ListItem cursor="pointer" onClick={onDeleteGroupOpen}>
           <HStack>
             <Text color="red.600">Delete Group</Text>
@@ -163,4 +209,4 @@ const GroupMembers = () => {
   );
 };
 
-export default GroupMembers;
+export default GroupSettings;

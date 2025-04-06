@@ -15,21 +15,16 @@ import {
   FormLabel,
   InputGroup,
   InputRightElement,
+  useColorMode,
 } from "@chakra-ui/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
 const Settings = () => {
-  const [changeUsernameData, setChangeUsernameData] = useState({
-    newUsername: "",
-  });
-
+  const [changeUsernameData, setChangeUsernameData] = useState({ newUsername: "" });
   const [passwordVisible, setPasswordVisible] = useState(false);
-
-  const [changePasswordData, setChangePasswordData] = useState({
-    newPassword: "",
-    confirmNewPassword: "",
-  });
+  const [changePasswordData, setChangePasswordData] = useState({ newPassword: "", confirmNewPassword: "" });
+  const { colorMode, toggleColorMode } = useColorMode();
 
   const handleChangeUsernameSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,13 +54,16 @@ const Settings = () => {
     const { newPassword, confirmNewPassword } = changePasswordData;
 
     try {
-      const { data } = await axios.post("/changePassword", { newPassword, confirmNewPassword });
+      const { data } = await axios.post("/changePassword", {
+        newPassword,
+        confirmNewPassword,
+      });
       if (data.errMessage) {
         toast.error(data.errMessage);
       } else {
         setChangePasswordData({
           newPassword: "",
-          confirmNewPassword: ""
+          confirmNewPassword: "",
         });
         toast.success("Password updated successfully");
         setTimeout(() => {
@@ -77,7 +75,9 @@ const Settings = () => {
     }
   };
 
-  const handleInputUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputUsernameChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const { name, value } = e.target;
     setChangeUsernameData({
       ...changeUsernameData,
@@ -85,7 +85,9 @@ const Settings = () => {
     });
   };
 
-  const handleInputPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputPasswordChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const { name, value } = e.target;
     setChangePasswordData({
       ...changePasswordData,
@@ -102,7 +104,11 @@ const Settings = () => {
           </Text>
           <HStack spacing={4}>
             <Text>Switch Theme</Text>
-            <Switch size="lg" />
+            <Switch
+              size="lg"
+              isChecked={colorMode === "dark"}
+              onChange={toggleColorMode}
+            />
           </HStack>
         </Box>
 

@@ -17,5 +17,6 @@ router.post("/login", authController.loginUser);
 router.get("/profile", authController.getProfile);
 router.post("/changeUsername", authMiddleware, authController.changeUsername);
 router.post("/changePassword", authMiddleware, authController.changePassword);
+router.post("/signOutUser", authMiddleware, authController.signOutUser);
 
 module.exports = router;

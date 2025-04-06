@@ -1,12 +1,12 @@
 import HeaderComponent from "./headerComponent";
 import CreateTaskList from "../createList";
-import GroupMembers from "../groupMembers";
+import GroupSettings from "../groupSettings";
 
 const GroupDetailsHeaderComponents = () => {
   return (
     <HeaderComponent
       headerComponent={<CreateTaskList />}
-      headerComponentExtra={<GroupMembers />}
+      headerComponentExtra={<GroupSettings />}
       modalTitle="Manage Dashboard"
     />
   );
