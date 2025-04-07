@@ -10,7 +10,7 @@ import {
   useMediaQuery,
 } from "@chakra-ui/react";
 import { useContext, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { UserContext } from "../../../context/userContext";
 import { TaskList, TaskListCardProps } from "../types";
@@ -24,6 +24,7 @@ import { faCrown, faHandHoldingHeart, faList, faUsers } from "@fortawesome/free-
 const TaskListCard = ({ Group_ID }: TaskListCardProps) => {
   const navigate = useNavigate();
   const { user } = useContext(UserContext);
+  const location = useLocation();
   const [taskLists, setTaskLists] = useState<TaskList[]>([]);
   const [selectedTaskList, setSelectedTaskList] = useState<TaskList | null>(null);
   const [isOpenBox, setIsOpenBox] = useState(false);
@@ -42,6 +43,18 @@ const TaskListCard = ({ Group_ID }: TaskListCardProps) => {
     taskPriority: 1,
     taskDueDate: "",
   });
+
+    // Get filter state from URL search params
+    const searchParams = new URLSearchParams(location.search);
+    const activeFilter = searchParams.get("filter") as "all" | "leader" | "helper" || "all";
+  
+    // Filter task lists based on the current filter
+    const filteredTaskLists = taskLists.filter(taskList => {
+      if (activeFilter === "all") return true;
+      if (activeFilter === "leader") return taskList.User_ID === user?.id;
+      if (activeFilter === "helper") return taskList.User_ID !== user?.id;
+      return true;
+    });
 
   useEffect(() => {
     const fetchTaskLists = async () => {
@@ -162,7 +175,7 @@ const TaskListCard = ({ Group_ID }: TaskListCardProps) => {
 
   return (
     <Flex wrap="wrap" gap={4}>
-      {taskLists.map((taskList) => (
+      {filteredTaskLists.map((taskList) => (
         <Box
           key={taskList.List_ID}
           className="taskListCard"

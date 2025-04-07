@@ -330,19 +330,17 @@ const deleteGroup = async (req, res) => {
 };
 
 const changeGroupstate = async (req, res) => {
-  const { groupID, newState } = req.body;
-
-  if (groupID == null || newState == null) {
-    return res.status(400).json({ errMessage: "Missing group ID or state" });
-  }
-
   try {
+    const { groupID, newState } = req.body;
+
+    if (groupID == null || newState == null) {
+      return res.status(400).json({ errMessage: "Missing group ID or state" });
+    }
+
     const sql = `UPDATE Groups SET IsActive = ? WHERE Group_ID = ?`;
     await db.run(sql, [newState ? 1 : 0, groupID]);
-
     res.status(200).json({ message: "Group state updated" });
   } catch (error) {
-    console.error("Error updating group state:", error);
     res.status(500).json({ errMessage: "Internal server error" });
   }
 }

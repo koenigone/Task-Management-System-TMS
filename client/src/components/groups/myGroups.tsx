@@ -12,11 +12,19 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import toast from "react-hot-toast";
 import { formatDate } from "../helpers";
+import { useLocation } from "react-router-dom";
 
 const MyGroups = () => {
   const { setCurrentGroup } = useContext(GroupContext);
   const [myGroups, setMyGroups] = useState<Groups[]>([]);
+  const [filteredGroups, setFilteredGroups] = useState<Groups[]>([]);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Get filter state from URL search params
+  const searchParams = new URLSearchParams(location.search);
+  const activeFilter =
+    (searchParams.get("filter") as "all" | "active" | "inactive") || "all";
 
   useEffect(() => {
     const fetchMyGroups = async () => {
@@ -33,6 +41,17 @@ const MyGroups = () => {
     fetchMyGroups();
   }, []);
 
+  // Apply filter whenever activeFilter or myGroups changes
+  useEffect(() => {
+    let filtered = myGroups;
+    if (activeFilter === "active") {
+      filtered = myGroups.filter((group) => group.IsActive);
+    } else if (activeFilter === "inactive") {
+      filtered = myGroups.filter((group) => !group.IsActive);
+    }
+    setFilteredGroups(filtered);
+  }, [activeFilter, myGroups]);
+
   // Handle group click
   const handleGroupClick = (group: Groups) => {
     setCurrentGroup(group);
@@ -41,8 +60,8 @@ const MyGroups = () => {
 
   return (
     <Flex wrap="wrap" gap={4}>
-      {myGroups.length > 0 ? (
-        myGroups.map((group) => (
+      {filteredGroups.length > 0 ? (
+        filteredGroups.map((group) => (
           <Box
             key={group.Group_ID}
             p={4}
