@@ -25,6 +25,10 @@ import axios from "axios";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
+/* AddGroup structure:
+  - get the navigate, isOpen, onOpen, onClose, createGroupData, and setCreateGroupData
+  - return the AddGroup
+*/
 const AddGroup = () => {
   const navigate = useNavigate();
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -44,11 +48,13 @@ const AddGroup = () => {
         setCreateGroupData({
           groupName: "",
         });
-        toast.success("Group created successfully");
-        navigate("/");
+        toast.success("Group created successfully");     // toast success message
+        window.dispatchEvent(new Event('groupUpdated')); // dispatch event to update groups
+        onClose();                                       // close the modal
+        navigate("/MyGroups");                           // navigate to the groups page
       }
     } catch (err) {
-      console.error("Group creation error:", err);
+      toast.error("Group creation error");
     }
   };
 
@@ -62,7 +68,14 @@ const AddGroup = () => {
 
   return (
     <>
-      <Box bg="#D9D9D9" color="gray.700" p={2} fontWeight="bold" borderRadius="md" w={170}>
+      <Box 
+        bg="#D9D9D9" 
+        color="gray.700" 
+        p={{ base: 1, sm: 2 }} 
+        fontWeight="bold" 
+        borderRadius="md" 
+        width={{ base: "150px", sm: "170px" }}
+      >
         <List display="flex" justifyContent="space-around" alignItems="center">
           <ListItem cursor="pointer" onClick={onOpen}>
             Create Group

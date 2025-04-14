@@ -3,22 +3,25 @@ import CreateGroup from "../createGroup";
 import FilterActiveGroups from "../filterActiveGroups";
 import { useNavigate } from "react-router-dom";
 
-interface MyGroupsHeaderComponentsProps {
-  onFilterChange: (filter: "all" | "active" | "inactive") => void;
-  currentFilter: "all" | "active" | "inactive";
+/* my groups header components structure:
+  - get the on filter change and the current filter
+  - handle the filter change
+  - show the create group and the filter active groups
+*/
+interface MyGroupsHeaderComponentsProps { // props for the my groups header components
+  onFilterChange: (filter: "all" | "active" | "inactive") => void; // on filter change
+  currentFilter: "all" | "active" | "inactive";                    // current filter
 }
 
 const MyGroupsHeaderComponents = ({ 
   onFilterChange, 
   currentFilter 
-}: MyGroupsHeaderComponentsProps) => {
+}: MyGroupsHeaderComponentsProps) => { // my groups header components
   const navigate = useNavigate();
 
-  const handleFilterChange = (filter: "all" | "active" | "inactive") => {
-    // Update URL with filter parameter
-    navigate(`/MyGroups?filter=${filter}`, { replace: true });
-    // Notify parent component
-    onFilterChange(filter);
+  const handleFilterChange = (filter: "all" | "active" | "inactive") => { // handle the filter change
+    navigate(`/MyGroups?filter=${filter}`, { replace: true });            // navigate to the my groups page with the filter
+    onFilterChange(filter);                                               // notify the parent component
   };
 
   return (
@@ -30,7 +33,6 @@ const MyGroupsHeaderComponents = ({
           currentFilter={currentFilter}
         />
       }
-      modalTitle="Manage My Groups"
     />
   );
 };

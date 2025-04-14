@@ -46,13 +46,12 @@ const Login = () => {
           email: '',
           password: '',
         });
-        toast.success("Sign Up Successfull!");
-        navigate('/') // navigate to login upon successfull sign up
+        toast.success("Login Successful!");
+        navigate('/') // navigate to dashboard upon successful login
       }
-      console.log("Signup successful:", data);
 
     } catch (err) {
-      console.error("Signup error:", err);
+      toast.error("Login error");
     }
   };
 

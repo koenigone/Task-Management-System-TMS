@@ -14,7 +14,7 @@ import {
   ModalFooter,
 } from "@chakra-ui/react";
 
-interface InviteModalProps {
+interface InviteModalProps { // props for the invite modal
   isOpen: boolean;
   onClose: () => void;
   inviteData: { userEmail: string };
@@ -23,6 +23,10 @@ interface InviteModalProps {
   title: string;
 }
 
+/* InviteToGroupModal structure:
+  - get the isOpen, onClose, inviteData, handleInputChange, handleSubmit, and title
+  - return the InviteToGroupModal
+*/
 const InviteToGroupModal: React.FC<InviteModalProps> = ({
   isOpen,
   onClose,

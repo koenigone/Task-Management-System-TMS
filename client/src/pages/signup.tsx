@@ -50,13 +50,11 @@ const SignUp = () => {
           password: '',
           confirmPassword: ''
         });
-        toast.success("Sign Up Successfull!");
-        navigate('/login') // navigate to login upon successfull sign up
+        toast.success("Sign Up Successful! Please log in.");
+        navigate('/login') // navigate to login upon successful sign up
       }
-      console.log("Signup successful:", data);
-
     } catch (err) {
-      console.error("Signup error:", err);
+      toast.error("Signup error");
     }
   };
 

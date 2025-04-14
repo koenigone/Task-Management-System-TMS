@@ -6,7 +6,7 @@ export interface Task {
   Task_ID: number;
   Task_Desc: string;
   Task_Priority: number;
-  Task_DueDate: string;
+  Task_DueDate: string | null;
   Task_Status: number;
 }
 
@@ -36,6 +36,9 @@ export interface Groups {
   GroupName: string;
   CreatedDate: string;
   User_ID: number;
+  User_Username: string;
+  Creator_ID?: number;
+  Creator_Username?: string;
   IsActive: boolean;
   TaskLists: TaskList[]; 
   Members: GroupMember[];

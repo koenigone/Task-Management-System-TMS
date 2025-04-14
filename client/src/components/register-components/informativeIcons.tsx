@@ -2,9 +2,7 @@ import "./coomponents.css";
 import { faPen, faCheck, faListCheck } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-const InformativeIcons = () => {
-
-
+const InformativeIcons = () => { // informative icons for the register page
   return (
     <div className="informative-icons-container">
       <div

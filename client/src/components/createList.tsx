@@ -27,14 +27,16 @@ import {
   Tooltip,
 } from "@chakra-ui/react";
 
+const TASK_LIST_UPDATED_EVENT = 'taskListUpdated'; // create a custom event for task list updates
+
+/* CreateTaskList structure:
+  - get the navigate, isOpen, onOpen, onClose, createListData, and setCreateListData
+  - return the CreateTaskList
+*/
 const CreateTaskList = () => {
   const navigate = useNavigate();
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [createListData, setCreateListData] = useState({
-    listName: "",
-    listDueDate: "",
-  });
-
+  const [createListData, setCreateListData] = useState({listName: "", listDueDate: ""});
   const { user } = useContext(UserContext);
   const { currentGroup } = useContext(GroupContext);
 
@@ -51,18 +53,30 @@ const CreateTaskList = () => {
       if (data.errMessage) {
         toast.error(data.errMessage);
       } else {
-        setCreateListData({
-          listName: "",
-          listDueDate: "",
-        });
-        toast.success("List created successfully");
-        navigate("/");
+        setCreateListData({listName: "", listDueDate: ""});        // reset the form
+        
+        toast.success("List created successfully");               // toast success message 
+        window.dispatchEvent(new Event(TASK_LIST_UPDATED_EVENT)); // dispatch event to update task lists
+        onClose();                                                // close the modal
+        
+        if (currentGroup) { // navigate to the dashboard or group details page
+          navigate(`/MyGroups/${currentGroup.Group_ID}`);
+        } else {
+          navigate("/");
+        }
       }
-    } catch (err) {
-      console.error("List creation error:", err);
+    } catch (err: any) {
+      toast.error("List creation error");
+      if (err.response && err.response.data && err.response.data.errMessage) { // check for error response from backend
+        toast.error(err.response.data.errMessage);
+      } else if (err.message) {
+        toast.error(err.message);
+      } else {
+        toast.error("Failed to create list. Please try again.");
+      }
     }
   };
-
+  
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setCreateListData({

@@ -17,7 +17,7 @@ router.post("/createTaskList", authMiddleware, TasksController.createTaskList);
 router.get("/getTaskList", authMiddleware, TasksController.getTaskList);
 router.post("/createTask", authMiddleware, TasksController.createTask);
 router.post("/markTaskAsComplete", authMiddleware, TasksController.markTaskAsComplete);
-router.get("/getTaskListMembers/:listId", authMiddleware, TasksController.getTaskListMembers);
 router.post("/deleteTaskList", authMiddleware, TasksController.deleteTaskList);
+router.post("/leaveTaskList", authMiddleware, TasksController.leaveTaskList);
 
 module.exports = router;

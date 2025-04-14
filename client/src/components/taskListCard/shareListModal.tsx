@@ -13,30 +13,79 @@ import {
   Button,
   ModalFooter,
 } from "@chakra-ui/react";
+import { useState } from "react";
+import axios from "axios";
+import toast from "react-hot-toast";
 
-interface ShareTaskListProps {
+/* share task list modal structure:
+  - get the is open, on close, share list data, handle input change, and handle submit
+  - show the modal with the form
+  - handle the form submit
+  - return the modal
+*/
+interface ShareTaskListProps { // props for the share task list modal
   isOpenShare: boolean;
   onCloseShare: () => void;
-  shareListData: { listID: number; userEmail: string };
-  handleInputChangeShareList: (e: React.ChangeEvent<any>) => void;
-  handleSubmitShareList: (e: React.FormEvent) => void;
+  listID: number;
+  onSuccess?: () => void;
 }
 
 const ShareTaskListModal: React.FC<ShareTaskListProps> = ({
   isOpenShare,
   onCloseShare,
-  shareListData,
-  handleInputChangeShareList,
-  handleSubmitShareList
+  listID,
+  onSuccess
 }) => {
+  const [userEmail, setUserEmail] = useState("");
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setUserEmail(e.target.value);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!userEmail) {
+      toast.error("Email is required");
+      return;
+    }
+
+    try {
+      const { data } = await axios.post("http://localhost:3000/inviteByEmail",
+        { 
+          listID,
+          userEmail
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        }
+      );
+
+      if (data.errMessage) {
+        toast.error(data.errMessage);
+        return;
+      }
+
+      toast.success("Invitation sent successfully");
+      setUserEmail("");
+      onCloseShare();
+      onSuccess?.();
+    } catch (error) {
+      toast.error("Error sending invitation");
+    }
+  };
+
   return (
     <Modal onClose={onCloseShare} isOpen={isOpenShare}>
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>Share Task List</ModalHeader>
         <ModalCloseButton />
-        <ModalBody key={shareListData.listID}>
-          <form onSubmit={handleSubmitShareList}>
+        <ModalBody>
+          <form onSubmit={handleSubmit}>
             <VStack spacing={4} align="stretch">
               <FormControl>
                 <FormLabel>Search by Email</FormLabel>
@@ -46,8 +95,8 @@ const ShareTaskListModal: React.FC<ShareTaskListProps> = ({
                   name="userEmail"
                   color="black"
                   placeholder="Search.."
-                  value={shareListData.userEmail}
-                  onChange={handleInputChangeShareList}
+                  value={userEmail}
+                  onChange={handleInputChange}
                 />
               </FormControl>
 

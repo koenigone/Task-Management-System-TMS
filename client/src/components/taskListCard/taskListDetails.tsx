@@ -1,5 +1,5 @@
 import { TaskList } from "../types";
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { UserContext } from "../../../context/userContext";
 import { GroupContext } from "../../../context/groupContext";
 import { formatDate } from "../helpers";
@@ -18,13 +18,13 @@ import {
   Flex,
   Tooltip,
   Badge,
-  useDisclosure,
 } from "@chakra-ui/react";
 import { faCheck, faPlus, faUserPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
 import toast from "react-hot-toast";
 import AssignToGroupMembers from "./assignMembersModal";
+import { useModal } from "../../../context/modalContext";
 
 interface TaskDetailsModalProps {
   isOpen: boolean;
@@ -32,7 +32,12 @@ interface TaskDetailsModalProps {
   selectedTaskList: TaskList | null;
   onOpenAdd: (e: React.MouseEvent) => void;
   onOpenShare: (e: React.MouseEvent) => void;
+  onTaskListUpdate: (updatedTaskList: TaskList) => void;
+  onTaskListDelete: (listID: number) => void;
 }
+
+// create a custom event for task list updates
+const TASK_LIST_UPDATED_EVENT = 'taskListUpdated';
 
 const TaskDetailsModal = ({
   isOpen,
@@ -40,34 +45,46 @@ const TaskDetailsModal = ({
   selectedTaskList,
   onOpenAdd,
   onOpenShare,
+  onTaskListUpdate,
+  onTaskListDelete,
 }: TaskDetailsModalProps) => {
   const { user } = useContext(UserContext);
   const { currentGroup } = useContext(GroupContext);
+  const { activeModal, openModal, closeModal } = useModal();
   const [isTaskLoading, setIsTaskLoading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [members, setMembers] = useState([]);
   const [isLoadingMembers, setIsLoadingMembers] = useState(false);
+  const [currentTaskList, setCurrentTaskList] = useState<TaskList | null>(null);
 
-  // Modal controls
-  const {
-    isOpen: isDeleteListOpen,
-    onOpen: onDeleteListOpen,
-    onClose: onDeleteListClose,
-  } = useDisclosure();
-
-  const {
-    isOpen: isMembersOpen,
-    onOpen: onMembersOpen,
-    onClose: onMembersClose,
-  } = useDisclosure();
+  useEffect(() => { // update the current task list when the selectedTaskList prop changes
+    setCurrentTaskList(selectedTaskList);
+  }, [selectedTaskList]);
 
   const handleMarkAsComplete = async (taskID: number) => {
     setIsTaskLoading(true);
     try {
-      const response = await axios.post(
-        "http://localhost:3000/markTaskAsComplete",
-        { taskID }
-      );
+      const response = await axios.post("http://localhost:3000/markTaskAsComplete", { taskID }, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+      
+      if (currentTaskList) { // update the task status in the UI
+        const updatedTaskList = {
+          ...currentTaskList,
+          tasks: currentTaskList.tasks?.map(task => 
+            task.Task_ID === taskID 
+              ? { ...task, Task_Status: task.Task_Status === 0 ? 1 : 0 } 
+              : task
+          ) || []
+        };
+        
+        setCurrentTaskList(updatedTaskList);                      // update the local state
+        onTaskListUpdate(updatedTaskList);                        // update the task list in the parent component
+        window.dispatchEvent(new Event(TASK_LIST_UPDATED_EVENT)); // dispatch event to update task lists across components
+      }
+      
       toast.success(response.data.message);
     } catch (error) {
       toast.error("Failed to update task status");
@@ -77,17 +94,21 @@ const TaskDetailsModal = ({
   };
 
   const handleDeleteList = async () => {
-    if (!selectedTaskList) return;
+    if (!currentTaskList) return;
 
     setIsDeleting(true);
     try {
       const response = await axios.post(
         "http://localhost:3000/deleteTaskList",
-        { listID: selectedTaskList.List_ID }
+        { listID: currentTaskList.List_ID }
       );
+      
+      onTaskListDelete(currentTaskList.List_ID);                // notify parent component about deletion
+      window.dispatchEvent(new Event(TASK_LIST_UPDATED_EVENT)); // dispatch event to update task lists across components
+      
       toast.success(response.data.message);
       onClose();
-      onDeleteListClose();
+      closeModal();
     } catch (error) {
       toast.error("Error deleting task list");
     } finally {
@@ -117,11 +138,29 @@ const TaskDetailsModal = ({
     }
   };
 
+  const handleLeaveTaskList = async () => {
+    if (!currentTaskList?.List_ID) return;
+
+    try {
+      const response = await axios.post("http://localhost:3000/leaveTaskList", { listID: currentTaskList.List_ID }, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+
+      toast.success(response.data.message);
+      onClose();
+      closeModal();
+    } catch (err) {
+      toast.error("Failed to leave task list");
+    }
+  };
+
   const handleOpenShare = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (selectedTaskList?.Group_ID) {
+    if (currentTaskList?.Group_ID) {
       fetchGroupMembers();
-      onMembersOpen();
+      openModal('assignMembers');
     } else {
       onOpenShare(e);
     }
@@ -143,18 +182,18 @@ const TaskDetailsModal = ({
             borderBottom="1px"
             borderColor="gray.200"
           >
-            <Text color="gray.600">{selectedTaskList?.ListName}</Text>
+            <Text color="gray.600">{currentTaskList?.ListName}</Text>
             <ModalCloseButton size="lg" />
           </ModalHeader>
           <ModalBody p={6}>
             <Text color="gray.600" fontSize="sm" mb={6}>
-              Created {formatDate(selectedTaskList?.CreatedDate)}
+              Created {formatDate(currentTaskList?.CreatedDate)}
             </Text>
 
             <Box maxH="400px" overflowY="auto" pr={2}>
-              {selectedTaskList?.tasks && selectedTaskList.tasks.length > 0 ? (
+              {currentTaskList?.tasks && currentTaskList.tasks.length > 0 ? (
                 <VStack spacing={4} align="stretch">
-                  {selectedTaskList.tasks.map((task) => (
+                  {currentTaskList.tasks.map((task) => (
                     <Box
                       key={task.Task_ID}
                       p={4}
@@ -216,7 +255,7 @@ const TaskDetailsModal = ({
                         </Text>
                         <Text>
                           <Tooltip label="Due date" hasArrow>
-                            {formatDate(task.Task_DueDate)}
+                            {task.Task_DueDate ? formatDate(task.Task_DueDate) : "Opened"}
                           </Tooltip>
                         </Text>
                         <Text>
@@ -243,7 +282,7 @@ const TaskDetailsModal = ({
           </ModalBody>
           <ModalFooter p={6} borderTop="1px" borderColor="gray.200">
             <Flex justify="space-between" align="center" width="100%">
-              {selectedTaskList?.User_ID === user?.id && (
+              {currentTaskList?.User_ID === user?.id && (
                 <Flex gap={2}>
                   <Tooltip label="Add tasks" placement="top" hasArrow>
                     <Button
@@ -259,7 +298,7 @@ const TaskDetailsModal = ({
                     placement="top"
                     hasArrow
                   >
-                    {selectedTaskList?.Group_ID ? (
+                    {currentTaskList?.Group_ID ? (
                       <Button
                         onClick={handleOpenShare}
                         colorScheme="teal"
@@ -280,9 +319,13 @@ const TaskDetailsModal = ({
                 </Flex>
               )}
               <Flex gap={3}>
-                {selectedTaskList?.User_ID === user?.id && (
-                  <Button onClick={onDeleteListOpen} background="red.300">
+                {currentTaskList?.User_ID === user?.id ? (
+                  <Button onClick={() => openModal('deleteList')} background="red.300">
                     Delete List
+                  </Button>
+                ) : (
+                  <Button onClick={() => openModal('leaveList')} background="red.300">
+                    Leave List
                   </Button>
                 )}
                 <Button onClick={onClose} colorScheme="gray">
@@ -296,8 +339,8 @@ const TaskDetailsModal = ({
 
       <Modal
         closeOnOverlayClick={false}
-        isOpen={isDeleteListOpen}
-        onClose={onDeleteListClose}
+        isOpen={activeModal === 'deleteList'}
+        onClose={() => closeModal()}
       >
         <ModalOverlay />
         <ModalContent>
@@ -316,18 +359,45 @@ const TaskDetailsModal = ({
             >
               Delete
             </Button>
-            <Button onClick={onDeleteListClose}>Cancel</Button>
+            <Button onClick={() => closeModal()}>Cancel</Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
+      <Modal
+        closeOnOverlayClick={false}
+        isOpen={activeModal === 'leaveList'}
+        onClose={() => closeModal()}
+      >
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Confirm Leave</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody pb={6}>
+            Are you sure you want to leave this task list?
+          </ModalBody>
+          <ModalFooter>
+            <Button
+              colorScheme="red"
+              onClick={handleLeaveTaskList}
+              isLoading={isDeleting}
+              loadingText="Deleting..."
+              mr={3}
+            >
+              Leave
+            </Button>
+            <Button onClick={() => closeModal()}>Cancel</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
 
       <AssignToGroupMembers
-        isOpen={isMembersOpen}
-        onClose={onMembersClose}
+        isOpen={activeModal === 'assignMembers'}
+        onClose={() => closeModal()}
         members={members}
         isLoading={isLoadingMembers}
         currentGroupID={currentGroup?.Group_ID}
-        selectedTaskList={selectedTaskList}
+        selectedTaskList={currentTaskList}
         refreshMembers={fetchGroupMembers}
       />
     </>

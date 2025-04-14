@@ -18,7 +18,13 @@ import {
 import axios from "axios";
 import toast from "react-hot-toast";
 
-interface AssignToGroupMembersProps {
+/* assign to group members modal structure:
+  - get the is open, on close, members, is loading, current group id, selected task list, and refresh members
+  - show the modal with the members
+  - handle the assign task
+  - return the modal
+*/
+interface AssignToGroupMembersProps { // props for the assign to group members modal
   isOpen: boolean;
   onClose: () => void;
   members: Array<{
@@ -40,16 +46,14 @@ const AssignToGroupMembers: React.FC<AssignToGroupMembersProps> = ({
   currentGroupID,
   selectedTaskList,
 }) => {
-
   const handleAssignTask = async (userID: number, username: string) => {
     if (!selectedTaskList?.List_ID) {
       toast.error("no task list selected")
       return;
     }
 
-    try {
-      const { data } = await axios.post(
-        "http://localhost:3000/assignTaskListToMember",
+    try { // assign the task list to the member
+      const { data } = await axios.post("http://localhost:3000/assignTaskListToMember",
         { 
           listID: selectedTaskList.List_ID,
           userID,
@@ -65,12 +69,13 @@ const AssignToGroupMembers: React.FC<AssignToGroupMembersProps> = ({
 
       if (data.errMessage) {
         toast.error(data.errMessage);
+        return;
       }
 
-      toast.success(data.message);
+      toast.success(`Task list assigned to ${username} successfully`);
       onClose();
     } catch (error) {
-      toast.error("error");
+      toast.error("Error assigning task list");
     }
   };
 

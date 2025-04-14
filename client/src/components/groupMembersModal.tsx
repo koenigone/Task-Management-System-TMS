@@ -17,7 +17,7 @@ import {
 import axios from "axios";
 import toast from "react-hot-toast";
 
-interface GetMembersModalProps {
+interface GetMembersModalProps { // props for the get members modal
   isOpen: boolean;
   onClose: () => void;
   members: Array<{
@@ -30,6 +30,10 @@ interface GetMembersModalProps {
   refreshMembers: () => void;
 }
 
+/* GroupMembersModal structure:
+  - get the isOpen, onClose, members, isLoading, currentGroupID, and refreshMembers
+  - return the GroupMembersModal
+*/
 const GroupMembersModal: React.FC<GetMembersModalProps> = ({
   isOpen,
   onClose,
@@ -41,8 +45,7 @@ const GroupMembersModal: React.FC<GetMembersModalProps> = ({
 
   const handleRemoveMember = async (userID: number) => {
     try {
-      const { data } = await axios.post(
-        "http://localhost:3000/removeGroupMember",
+      const { data } = await axios.post("http://localhost:3000/removeGroupMember",
         { groupID: currentGroupID, userID },
         {
           headers: {

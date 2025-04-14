@@ -1,6 +1,6 @@
 import React, { createContext, useState, ReactNode } from "react";
 
-interface Group {
+interface Group { // group object
   Group_ID: number;
   GroupName: string;
   CreatedDate: string;
@@ -8,21 +8,21 @@ interface Group {
   IsActive: boolean;
 }
 
-interface GroupContextType {
+interface GroupContextType { // context type
   currentGroup: Group | null;
   setCurrentGroup: React.Dispatch<React.SetStateAction<Group | null>>;
 }
 
 export const GroupContext = createContext<GroupContextType>({} as GroupContextType);
 
-interface GroupContextProviderProps {
+interface GroupContextProviderProps { // props for the context provider
   children: ReactNode;
 }
 
-export function GroupContextProvider({ children }: GroupContextProviderProps) {
+export function GroupContextProvider({ children }: GroupContextProviderProps) { // provider for the context
   const [currentGroup, setCurrentGroup] = useState<Group | null>(null);
 
-  return (
+  return ( // return the provider
     <GroupContext.Provider value={{ currentGroup, setCurrentGroup }}>
       {children}
     </GroupContext.Provider>

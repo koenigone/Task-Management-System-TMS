@@ -1,6 +1,6 @@
 import "./coomponents.css";
 
-const CurvedBackground = () => {
+const CurvedBackground = () => { // curved background for the register page
   return (
     <>
       <div className="bottom-left-shape"></div>

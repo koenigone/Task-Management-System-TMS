@@ -1,6 +1,13 @@
 const db = require("../config/db");
 const helpers = require("../helpers/generateID");
 
+/* INVITE BY EMAIL FUNCTION
+  This function is used to invite a user to a task list or group by email
+  It generates an invite ID, sender ID, list ID, group ID, and user email
+  It then checks if the user email is required and if the list ID or group ID is required
+  It then checks if the sender is the list creator or group creator
+  It then sends an invite to the user
+*/
 const inviteByEmail = (req, res) => {
   try {
     const inviteID = helpers.generateEightDigitID();
@@ -17,46 +24,25 @@ const inviteByEmail = (req, res) => {
 
     // If listID is provided, verify that the sender is the list creator
     if (listID) {
-      const getListCreatorQuery =
-        "SELECT User_ID FROM TaskList WHERE List_ID = ?";
+      const getListCreatorQuery = "SELECT User_ID FROM TaskList WHERE List_ID = ?";
       db.get(getListCreatorQuery, [listID], (error, list) => {
-        if (error) {
-          console.error("Database error:", error.message);
-          return res.json({ errMessage: "Database error" });
-        }
-
-        if (!list) {
-          return res.json({ errMessage: "Task list not found" });
-        }
+        if (error) return res.json({ errMessage: "Database error" });       // check for error
+        if (!list) return res.json({ errMessage: "Task list not found" });  // check if list exists
 
         if (senderID !== list.User_ID) {
-          return res.json({
-            errMessage:
-              "You are not authorized to invite users to a task list you didn't create",
-          });
+          return res.json({ errMessage: "You are not authorized to invite users to a task list you didn't create" });
         }
 
-        // Proceed with invite logic if sender is the creator
-        sendInvite();
+        sendInvite(); // proceed with invite logic if sender is the creator
       });
     } else {
-      // If it's a group invite, check if sender is the group creator
-      const getGroupCreatorQuery =
-        "SELECT User_ID FROM Groups WHERE Group_ID = ?";
+      const getGroupCreatorQuery = "SELECT User_ID FROM Groups WHERE Group_ID = ?";
       db.get(getGroupCreatorQuery, [groupID], (error, group) => {
-        if (error) {
-          console.error("Database error:", error.message);
-          return res.json({ errMessage: "Database error" });
-        }
+        if (error) return res.json({ errMessage: "Database error" });   // check for error
+        if (!group) return res.json({ errMessage: "Group not found" }); // check if group exists
 
-        if (!group) {
-          return res.json({ errMessage: "Group not found" });
-        }
-
-        if (senderID !== group.User_ID) {
-          return res.json({
-            errMessage: "You are not authorized to invite users to this group",
-          });
+        if (senderID !== group.User_ID) { // check if sender is the group creator
+          return res.json({ errMessage: "You are not authorized to invite users to this group" });
         }
 
         sendInvite();
@@ -64,57 +50,34 @@ const inviteByEmail = (req, res) => {
     }
 
     const sendInvite = () => {
-      const getSenderUsernameQuery =
-        "SELECT User_Username FROM User WHERE User_ID = ?";
+      const getSenderUsernameQuery = "SELECT User_Username FROM User WHERE User_ID = ?";
       db.get(getSenderUsernameQuery, [senderID], (error, sender) => {
-        if (error) {
-          console.error("Database error:", error.message);
-          return res.json({ errMessage: "Database error" });
-        }
-
-        if (!sender) {
-          return res.json({ errMessage: "Sender not found" });
-        }
+        if (error) return res.json({ errMessage: "Database error" });    
+        if (!sender) return res.json({ errMessage: "Sender not found" }); // check if sender exists
 
         const senderUsername = sender.User_Username;
+        const getSenderEmailQuery = "SELECT User_Email FROM User WHERE User_ID = ?";
 
-        const getSenderEmailQuery =
-          "SELECT User_Email FROM User WHERE User_ID = ?";
         db.get(getSenderEmailQuery, [senderID], (error, senderEmailResult) => {
-          if (error) {
-            console.error("Database error:", error.message);
-            return res.json({ errMessage: "Database error" });
-          }
+          if (error) return res.json({ errMessage: "Database error" });                     
+          if (!senderEmailResult) return res.json({ errMessage: "Sender email not found" }); // check if sender email exists
 
-          if (senderEmailResult.User_Email === userEmail) {
+          if (senderEmailResult.User_Email === userEmail) { // check if sender email is the same as the user email
             return res.json({ errMessage: "You cannot invite yourself" });
           }
 
           const findUserQuery = "SELECT User_ID FROM User WHERE User_Email = ?";
           db.get(findUserQuery, [userEmail], (error, user) => {
-            if (error) {
-              console.error("Database error:", error.message);
-              return res.json({ errMessage: "Database error" });
-            }
-
-            if (!user) {
-              return res.json({ errMessage: "User not found" });
-            }
+            if (error) return res.json({ errMessage: "Database error" });
+            if (!user) return res.json({ errMessage: "User not found" }); // check if user exists
 
             const receiverID = user.User_ID;
 
             if (listID) {
-              const getListNameQuery =
-                "SELECT ListName FROM TaskList WHERE List_ID = ?";
+              const getListNameQuery = "SELECT ListName FROM TaskList WHERE List_ID = ?";
               db.get(getListNameQuery, [listID], (error, list) => {
-                if (error) {
-                  console.error("Database error:", error.message);
-                  return res.json({ errMessage: "Database error" });
-                }
-
-                if (!list) {
-                  return res.json({ errMessage: "List not found" });
-                }
+                if (error) return res.json({ errMessage: "Database error" });
+                if (!list) return res.json({ errMessage: "List not found" }); // check if list exists
 
                 const sendInviteQuery = `
                   INSERT INTO Invite (Invite_ID, Sender_User_ID, Sender_User_Username, 
@@ -122,37 +85,16 @@ const inviteByEmail = (req, res) => {
                   VALUES (?, ?, ?, ?, ?, ?, 0)
                 `;
 
-                db.run(
-                  sendInviteQuery,
-                  [
-                    inviteID,
-                    senderID,
-                    senderUsername,
-                    receiverID,
-                    listID,
-                    list.ListName,
-                  ],
-                  function (error) {
-                    if (error) {
-                      console.error("Database error:", error.message);
-                      return res.json({ errMessage: "Failed to send invite" });
-                    }
-                    res.json({ message: "Task list invite sent successfully" });
-                  }
-                );
+                db.run(sendInviteQuery, [inviteID, senderID, senderUsername, receiverID, listID, list.ListName], (error) => {
+                  if (error) return res.json({ errMessage: "Failed to send invite" });
+                  res.json({ message: "Task list invite sent successfully" });
+                });
               });
             } else {
-              const getGroupNameQuery =
-                "SELECT GroupName FROM Groups WHERE Group_ID = ?";
+              const getGroupNameQuery = "SELECT GroupName FROM Groups WHERE Group_ID = ?";
               db.get(getGroupNameQuery, [groupID], (error, group) => {
-                if (error) {
-                  console.error("Database error:", error.message);
-                  return res.json({ errMessage: "Database error" });
-                }
-
-                if (!group) {
-                  return res.json({ errMessage: "Group not found" });
-                }
+                if (error) return res.json({ errMessage: "Database error" });  
+                if (!group) return res.json({ errMessage: "Group not found" }); // check if group exists
 
                 const sendInviteQuery = `
                   INSERT INTO Invite (Invite_ID, Sender_User_ID, Sender_User_Username, 
@@ -160,24 +102,10 @@ const inviteByEmail = (req, res) => {
                   VALUES (?, ?, ?, ?, ?, ?, 0)
                 `;
 
-                db.run(
-                  sendInviteQuery,
-                  [
-                    inviteID,
-                    senderID,
-                    senderUsername,
-                    receiverID,
-                    groupID,
-                    group.GroupName,
-                  ],
-                  function (error) {
-                    if (error) {
-                      console.error("Database error:", error.message);
-                      return res.json({ errMessage: "Failed to send invite" });
-                    }
-                    res.json({ message: "Group invite sent successfully" });
-                  }
-                );
+                db.run(sendInviteQuery, [inviteID, senderID, senderUsername, receiverID, groupID, group.GroupName], (error) => {
+                  if (error) return res.json({ errMessage: "Failed to send invite" });
+                  res.json({ message: "Group invite sent successfully" });
+                });
               });
             }
           });
@@ -185,38 +113,32 @@ const inviteByEmail = (req, res) => {
       });
     };
   } catch (error) {
-    console.error(error);
-    res.json({ errMessage: "Internal server error" });
+    return res.status(500).json({ errMessage: "Internal server error" });
   }
 };
 
+// GET INVITES FUNCTION
 const getInvites = (req, res) => {
   try {
     const userID = req.user.id;
-
-    const getInvitesQuery =
-      "SELECT * FROM Invite WHERE Receiver_User_ID = ? AND Status = 0";
+    const getInvitesQuery = "SELECT * FROM Invite WHERE Receiver_User_ID = ? AND Status = 0";
 
     db.all(getInvitesQuery, [userID], (error, invites) => {
-      if (error) {
-        console.error("Database error:", error.message);
-        return res.status(500).json({
-          errMessage: "Failed to fetch invites",
-          error: error.message,
-        });
-      }
-
+      if (error) return res.status(500).json({ errMessage: "Failed to fetch invites", error: error.message });
       res.json({ invites });
     });
   } catch (error) {
-    console.error("Server error:", error);
-    res.status(500).json({
-      errMessage: "Internal server error",
-      error: error.message,
-    });
+    return res.status(500).json({ errMessage: "Internal server error" });
   }
 };
 
+// ACCEPT INVITE FUNCTION
+/*
+  This function is used to accept an invite
+  It updates the invite status to 1
+  It then adds the user to the task list or group
+  It then sends a success message
+*/
 const acceptInvite = (req, res) => {
   try {
     const { inviteId } = req.body;
@@ -224,99 +146,38 @@ const acceptInvite = (req, res) => {
     const getInviteQuery = "SELECT * FROM Invite WHERE Invite_ID = ?";
 
     db.get(getInviteQuery, [inviteId], (inviteError, invite) => {
-      if (inviteError) {
-        console.error("Database error:", inviteError.message);
-        return res.status(500).json({
-          errMessage: "Failed to fetch invite",
-          error: inviteError.message,
-        });
-      }
-
-      if (!invite) {
-        return res.status(404).json({ errMessage: "Invite not found" });
-      }
+      if (inviteError) return res.status(500).json({ errMessage: "Failed to fetch invite", error: inviteError.message }); // check for error
+      if (!invite) return res.status(404).json({ errMessage: "Invite not found" });                                       // check if invite exists
 
       const getUserQuery = "SELECT User_Username FROM User WHERE User_ID = ?";
       db.get(getUserQuery, [userID], (userError, user) => {
-        if (userError) {
-          console.error("Database error:", userError.message);
-          return res.status(500).json({
-            errMessage: "Failed to fetch user data",
-            error: userError.message,
-          });
-        }
+        if (userError) return res.status(500).json({ errMessage: "Failed to fetch user data", error: userError.message });
+        if (!user) return res.status(404).json({ errMessage: "User not found" });                                         // check if user exists
 
-        if (!user) {
-          return res.status(404).json({ errMessage: "User not found" });
-        }
+        const updateInviteQuery = "UPDATE Invite SET Status = 1 WHERE Invite_ID = ?";
 
-        const updateInviteQuery =
-          "UPDATE Invite SET Status = 1 WHERE Invite_ID = ?";
-
-        db.run(updateInviteQuery, [inviteId], function (updateError) {
-          if (updateError) {
-            console.error("Database error:", updateError.message);
-            return res.status(500).json({
-              errMessage: "Failed to update invite",
-              error: updateError.message,
-            });
-          }
+        db.run(updateInviteQuery, [inviteId], (updateError) => {
+          if (updateError) return res.status(500).json({ errMessage: "Failed to update invite", error: updateError.message });
 
           if (invite.TaskList_ID) {
             const taskListMemberID = helpers.generateEightDigitID();
-            const addToListMembersQuery = `
-              INSERT INTO TaskListMembers 
-                (TaskListMembers_ID, User_ID, List_ID) 
-              VALUES (?, ?, ?)
-            `;
+            const addToListMembersQuery = "INSERT INTO TaskListMembers (TaskListMembers_ID, User_ID, List_ID) VALUES (?, ?, ?)";
 
-            db.run(
-              addToListMembersQuery,
-              [taskListMemberID, userID, invite.TaskList_ID],
-              function (listError) {
-                if (listError) {
-                  console.error("Database error:", listError.message);
-                  return res.status(500).json({
-                    errMessage: "Failed to add user to task list",
-                    error: listError.message,
-                  });
-                }
-                res.json({
-                  success: true,
-                  message: "Task list invite accepted",
-                });
-              }
-            );
+            db.run(addToListMembersQuery, [taskListMemberID, userID, invite.TaskList_ID], (listError) => {
+              if (listError) return res.status(500).json({ errMessage: "Failed to add user to task list", error: listError.message });
+              res.json({ success: true, message: "Task list invite accepted" });
+            });
+
           } else if (invite.Group_ID) {
             const groupMemberID = helpers.generateEightDigitID();
             const joinDate = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
 
-            const addToGroupMembersQuery = `
-              INSERT INTO GroupMember 
-                (GroupMember_ID, User_ID, User_Username, Group_ID, JoinDate) 
-              VALUES (?, ?, ?, ?, ?)
-            `;
+            const addToGroupMembersQuery = "INSERT INTO GroupMember (GroupMember_ID, User_ID, User_Username, Group_ID, JoinDate) VALUES (?, ?, ?, ?, ?)";
 
-            db.run(
-              addToGroupMembersQuery,
-              [
-                groupMemberID,
-                userID,
-                user.User_Username,
-                invite.Group_ID,
-                joinDate,
-              ],
-              function (groupError) {
-                if (groupError) {
-                  console.error("Database error:", groupError.message);
-                  return res.status(500).json({
-                    errMessage: "Failed to add user to group",
-                    error: groupError.message,
-                  });
-                }
-                res.json({ success: true, message: "Group invite accepted" });
-              }
-            );
+            db.run(addToGroupMembersQuery, [groupMemberID, userID, user.User_Username, invite.Group_ID, joinDate], (groupError) => {
+              if (groupError) return res.status(500).json({ errMessage: "Failed to add user to group", error: groupError.message });
+              res.json({ success: true, message: "Group invite accepted" });
+            });
           } else {
             res.status(400).json({ errMessage: "Invalid invite type" });
           }
@@ -324,43 +185,24 @@ const acceptInvite = (req, res) => {
       });
     });
   } catch (error) {
-    console.error("Server error:", error);
-    res.status(500).json({
-      errMessage: "Internal server error",
-      error: error.message,
-    });
+    return res.status(500).json({ errMessage: "Internal server error" });
   }
 };
 
+// DENY INVITE FUNCTION
 const denyInvites = (req, res) => {
   try {
     const { inviteId } = req.body;
+    const denyInviteQuery = "DELETE FROM Invite WHERE Invite_ID = ?";
 
-    const updateInviteQuery = "DELETE FROM Invite WHERE Invite_ID = ?";
-
-    db.run(updateInviteQuery, [inviteId], function (error) {
-      if (error) {
-        console.error("Database error:", error.message);
-        return res.status(500).json({
-          errMessage: "Failed to update invite",
-          error: error.message,
-        });
-      }
-
-      if (this.changes === 0) {
-        return res.status(404).json({
-          errMessage: "Invite not found",
-        });
-      }
+    db.run(denyInviteQuery, [inviteId], (error) => {
+      if (error) return res.status(500).json({ errMessage: "Failed to update invite", error: error.message }); // check for error
+      if (this.changes === 0) return res.status(404).json({ errMessage: "Invite not found" });                 // check if invite exists
 
       res.json({ success: true, message: "Invite rejected" });
     });
   } catch (error) {
-    console.error("Server error:", error);
-    res.status(500).json({
-      errMessage: "Internal server error",
-      error: error.message,
-    });
+    return res.status(500).json({ errMessage: "Internal server error" });
   }
 };
 

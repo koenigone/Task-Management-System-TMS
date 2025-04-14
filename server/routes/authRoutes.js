@@ -18,5 +18,6 @@ router.get("/profile", authController.getProfile);
 router.post("/changeUsername", authMiddleware, authController.changeUsername);
 router.post("/changePassword", authMiddleware, authController.changePassword);
 router.post("/signOutUser", authMiddleware, authController.signOutUser);
+router.post("/deleteAccount", authMiddleware, authController.deleteAccount);
 
 module.exports = router;

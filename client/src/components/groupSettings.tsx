@@ -17,8 +17,13 @@ import toast from "react-hot-toast";
 import InviteToGroupModal from "./inviteToGroupModal";
 import GroupMembersModal from "./groupMembersModal";
 import DeleteGroupModal from "./deleteGroupModal";
-import { Groups } from "./types";
 
+const GROUP_UPDATED_EVENT = 'groupUpdated'; // create a custom event for group updates
+
+/* GroupSettings structure:
+  - get the currentGroup and user
+  - return the GroupSettings
+*/
 const GroupSettings = () => {
   const { currentGroup } = useContext(GroupContext);
   const { user } = useContext(UserContext);
@@ -27,7 +32,6 @@ const GroupSettings = () => {
   const [members, setMembers] = useState([]);
   const [isLoadingMembers, setIsLoadingMembers] = useState(false);
   const [isDeleteGroupOpen, setIsDeleteGroupOpen] = useState(false);
-  const [groups, setGroups] = useState<Groups[]>([]);
   const [inviteData, setInviteData] = useState({ userEmail: "" });
   const [isGroupActive, setIsGroupActive] = useState(
     currentGroup?.IsActive ?? true
@@ -48,8 +52,7 @@ const GroupSettings = () => {
 
     setIsLoadingMembers(true);
     try {
-      const { data } = await axios.get(
-        "http://localhost:3000/getGroupMembers",
+      const { data } = await axios.get("http://localhost:3000/getGroupMembers",
         {
           params: { groupID: currentGroup.Group_ID },
           headers: {
@@ -93,18 +96,17 @@ const GroupSettings = () => {
       }
     } catch (err) {
       toast.error("Failed to send invite");
-      console.error(err);
     }
   };
 
-  const handleGroupDeleteSuccess = (deletedGroupID: number) => {
-    setGroups((prevGroups) =>
-      prevGroups.filter((group) => group.Group_ID !== deletedGroupID)
-    );
-    onDeleteGroupClose();
+  const handleGroupDeleteSuccess = (deletedGroupID: number) => { // handle the group delete success
+    if (currentGroup?.Group_ID === deletedGroupID) {
+      window.dispatchEvent(new Event(GROUP_UPDATED_EVENT));
+      onDeleteGroupClose();
+    }
   };
 
-  useEffect(() => {
+  useEffect(() => { // update the group state
     if (currentGroup) {
       setIsGroupActive(currentGroup.IsActive);
     }
@@ -114,8 +116,7 @@ const GroupSettings = () => {
     try {
       const newState = !isGroupActive;
   
-      await axios.post(
-        "http://localhost:3000/changeGroupState",
+      await axios.post("http://localhost:3000/changeGroupState",
         {
           groupID: currentGroup?.Group_ID,
           newState,
@@ -127,14 +128,15 @@ const GroupSettings = () => {
         }
       );
   
-      setIsGroupActive(newState);
-      toast.success(`Group is now ${newState ? "Active" : "Inactive"}`);
+      setIsGroupActive(newState);                                        // update the group state
+      window.dispatchEvent(new Event(GROUP_UPDATED_EVENT));              // dispatch event to update groups
+      toast.success(`Group is now ${newState ? "Active" : "Inactive"}`); // toast success message
     } catch (error) {
-      console.error("Failed to change group state:", error);
       toast.error("Failed to change group state");
     }
   };  
 
+  // if the current group is not the user's group, return null
   if (currentGroup?.User_ID !== user?.id) return null;
 
   return (

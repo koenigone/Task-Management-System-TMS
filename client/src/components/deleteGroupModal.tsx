@@ -16,7 +16,7 @@ import {
   AlertIcon,
 } from "@chakra-ui/react";
 
-interface DeleteGroupModalProps {
+interface DeleteGroupModalProps { // props for the delete group modal
   isOpen: boolean;
   onClose: () => void;
   onDeleteSuccess: (deletedGroupID: number) => void;
@@ -24,6 +24,10 @@ interface DeleteGroupModalProps {
   groupName: string;
 }
 
+/* DeleteGroupModal structure:
+  - get the isOpen, onClose, onDeleteSuccess, groupId, and groupName
+  - return the DeleteGroupModal
+*/
 const DeleteGroupModal: React.FC<DeleteGroupModalProps> = ({ 
   isOpen, 
   onClose,
@@ -40,10 +44,7 @@ const DeleteGroupModal: React.FC<DeleteGroupModalProps> = ({
     setError(null);
 
     try {
-      const response = await axios.post(
-        "http://localhost:3000/deleteGroup",
-        { groupID: groupId }
-      );
+      const response = await axios.post("http://localhost:3000/deleteGroup", { groupID: groupId });
 
       if (response.data.message) {
         toast.success(response.data.message);
@@ -54,7 +55,6 @@ const DeleteGroupModal: React.FC<DeleteGroupModalProps> = ({
     } catch (error) {
       toast.error("Delete group error");
       setError("Failed to delete group");
-      toast.error("Failed to delete group");
     } finally {
       setIsDeleting(false);
     }

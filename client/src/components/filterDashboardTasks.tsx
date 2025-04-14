@@ -2,11 +2,15 @@ import { Box, Flex, List, ListItem, Text, Tooltip } from "@chakra-ui/react";
 import { faCrown, faFilter, faHandHoldingHeart } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-interface FilterDashboardTasksProps {
+interface FilterDashboardTasksProps { // props for the filter dashboard tasks
   onFilterChange: (filter: "all" | "leader" | "helper") => void;
   currentFilter: "all" | "leader" | "helper";
 }
 
+/* FilterDashboardTasks structure:
+  - get the onFilterChange and currentFilter
+  - return the FilterDashboardTasks
+*/
 const FilterDashboardTasks = ({ onFilterChange, currentFilter }: FilterDashboardTasksProps) => {
   return (
     <Box bg="#D9D9D9" color="gray.700" p={2} fontWeight="bold" borderRadius="md" w={255}>
