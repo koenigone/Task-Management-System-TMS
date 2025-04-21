@@ -8,7 +8,7 @@ const { jwtSecret } = require("../config/jwt");
 const signUpUser = async (req, res) => {
   try {
     const userID = helpers.generateEightDigitID();
-    const { username, email, password } = req.body;
+    const { username, email, password, confirmPassword } = req.body;
 
     // validate inputs
     if (!username || !email || !password) {
@@ -18,6 +18,12 @@ const signUpUser = async (req, res) => {
     if (username.length < 5 || username.length > 20) {
       return res.status(400).json({
         errMessage: "Username must be between 5 and 20 characters",
+      });
+    }
+
+    if (password !== confirmPassword) {
+      return res.status(400).json({
+        errMessage: "Passwords do not match"
       });
     }
 
