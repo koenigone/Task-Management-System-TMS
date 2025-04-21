@@ -21,12 +21,6 @@ const signUpUser = async (req, res) => {
       });
     }
 
-    if (password !== confirmPassword) {
-      return res.status(400).json({
-        errMessage: "Passwords do not match"
-      });
-    }
-
     // validate email is unique
     const emailQuery = "SELECT * FROM User WHERE User_Email = ?";
     db.get(emailQuery, [email], async (error, row) => {
@@ -36,6 +30,12 @@ const signUpUser = async (req, res) => {
       if (password.length < 8) { // validate password lengthc
         return res.status(400).json({
           errMessage: "Password should be at least 8 characters long.",
+        });
+      }
+
+      if (password !== confirmPassword) {
+        return res.status(400).json({
+          errMessage: "Passwords do not match"
         });
       }
         

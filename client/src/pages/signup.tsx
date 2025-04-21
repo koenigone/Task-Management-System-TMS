@@ -37,10 +37,10 @@ const SignUp = () => {
 
   const handleSubmit = async (e: React.FormEvent) => { // prevents the page from auto reload on submission
     e.preventDefault();
-    const { username, email, password } = signUpData;
+    const { username, email, password, confirmPassword } = signUpData;
 
     try {
-      const { data } = await axios.post("/signup", { username, email, password });
+      const { data } = await axios.post("/signup", { username, email, password, confirmPassword });
       if (data.errMessage) {
         toast.error(data.errMessage);
       } else {
