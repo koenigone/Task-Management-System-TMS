@@ -138,8 +138,8 @@ const Invites = () => {
         </Heading>
         <Center width="100%" py={8}>
           <VStack spacing={4}>
-            <Text fontSize="xl" color="gray.500">No invites found</Text>
-            <Text color="gray.400">You don't have any pending invites at the moment</Text>
+            <Text fontSize="xl" color="gray.700">No invites found</Text>
+            <Text color="gray.600">You don't have any pending invites at the moment</Text>
           </VStack>
         </Center>
       </Box>

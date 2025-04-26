@@ -266,12 +266,12 @@ const TaskListCard = ({ Group_ID }: TaskListCardProps) => {
             </HStack>
 
             <Tooltip 
-              label={`${taskList.progress?.completedTasks || 0} of ${taskList.progress?.totalTasks || 0} tasks completed (${taskList.progress?.percentage || 0}%)`} 
+              label={`${taskList.progress?.completedTasks || 0} of ${taskList.progress?.totalTasks || 0} tasks completed (${taskList.progress?.percentage || 0}%)`}
               hasArrow
             >
               <Progress 
                 value={taskList.progress?.percentage || 0} 
-                size="sm" 
+                size="sm"
                 colorScheme="teal" 
               />
             </Tooltip>

@@ -290,6 +290,7 @@ const Settings = () => {
                         h="1.75rem"
                         size="sm"
                         variant="ghost"
+                        className="showPasswordBtn"
                         onClick={() => setPasswordVisible(!passwordVisible)}
                       >
                         <FontAwesomeIcon
@@ -319,6 +320,7 @@ const Settings = () => {
                         h="1.75rem"
                         size="sm"
                         variant="ghost"
+                        name="showPasswordBtn"
                         onClick={() => setPasswordVisible(!passwordVisible)}
                       >
                         <FontAwesomeIcon
@@ -330,7 +332,7 @@ const Settings = () => {
                 </FormControl>
                 
                 <Flex justify="flex-end">
-                  <Button type="submit" colorScheme="teal" size={buttonSize}>
+                  <Button type="submit" name="updatePasswordBtn" colorScheme="teal" size={buttonSize}>
                     Update Password
                   </Button>
                 </Flex>
@@ -360,7 +362,7 @@ const Settings = () => {
                 Once you delete your account, there is no going back. This action cannot be undone.
               </Text>
               <Box>
-                <Button colorScheme="red" onClick={onOpen} size={buttonSize}>
+                <Button colorScheme="red" name="deleteAccountBtn" onClick={onOpen} size={buttonSize}>
                   Delete Account
                 </Button>
               </Box>
@@ -381,10 +383,10 @@ const Settings = () => {
             </Text>
           </ModalBody>
           <ModalFooter>
-            <Button mr={3} onClick={onClose}>
+            <Button mr={3} className="cancelBtn" onClick={onClose}>
               Cancel
             </Button>
-            <Button colorScheme="red" onClick={handleDeleteAccount}>
+            <Button colorScheme="red" name="deleteBtn" onClick={handleDeleteAccount}>
               Delete
             </Button>
           </ModalFooter>

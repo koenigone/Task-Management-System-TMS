@@ -132,8 +132,8 @@ const JoinedGroupsCard = () => {
     return (
       <Center width="100%" py={8}>
         <VStack spacing={4}>
-          <Text fontSize="xl" color={colorMode === 'dark' ? 'gray.300' : 'gray.500'}>No joined groups found</Text>
-          <Text color={colorMode === 'dark' ? 'gray.400' : 'gray.400'}>Join a group to get started</Text>
+          <Text fontSize="xl" color={colorMode === 'dark' ? 'gray.300' : 'gray.700'}>No joined groups found</Text>
+          <Text color={colorMode === 'dark' ? 'gray.400' : 'gray.600'}>Join a group to get started</Text>
         </VStack>
       </Center>
     );
