@@ -19,10 +19,10 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 // Routes
-app.use("/", require("./routes/authRoutes"));
-app.use("/", require("./routes/taskRoutes"));
-app.use("/", require("./routes/groupRoutes"));
-app.use("/", require("./routes/shareRoutes"));
+app.use("/api", require("./routes/authRoutes"));
+app.use("/api", require("./routes/taskRoutes"));
+app.use("/api", require("./routes/groupRoutes"));
+app.use("/api", require("./routes/shareRoutes"));
 
 // Serve frontend build in production
 if (process.env.NODE_ENV === 'production') {

@@ -38,7 +38,7 @@ const Login = () => {
     const { email, password } = loginData;
 
     try {
-      const { data } = await axios.post("/api/login", { email, password });
+      const { data } = await axios.post("/login", { email, password });
       if (data.errMessage) {
         toast.error(data.errMessage);
       } else {
