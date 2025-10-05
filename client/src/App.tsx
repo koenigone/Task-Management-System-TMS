@@ -17,7 +17,7 @@ import Settings from "./pages/settings.tsx";
 import SignUp from "./pages/signup.tsx";
 import Login from "./pages/login.tsx";
 
-axios.defaults.baseURL = "http://localhost:3000";
+axios.defaults.baseURL = "/api";
 axios.defaults.withCredentials = true;
 
 function App() {

@@ -40,7 +40,7 @@ const JoinedGroupsCard = () => {
     
     try {
       const { data } = await axios.get( // get the joined groups using axios and the user id from the context
-        `http://localhost:3000/getUserJoinedGroups/${user.id}`,
+        `/api/getUserJoinedGroups/${user.id}`,
         {
           withCredentials: true,
           headers: {

@@ -45,7 +45,7 @@ const GroupMembersModal: React.FC<GetMembersModalProps> = ({
 
   const handleRemoveMember = async (userID: number) => {
     try {
-      const { data } = await axios.post("http://localhost:3000/removeGroupMember",
+      const { data } = await axios.post("/api/removeGroupMember",
         { groupID: currentGroupID, userID },
         {
           headers: {

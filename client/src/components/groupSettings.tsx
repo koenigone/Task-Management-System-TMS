@@ -52,7 +52,7 @@ const GroupSettings = () => {
 
     setIsLoadingMembers(true);
     try {
-      const { data } = await axios.get("http://localhost:3000/getGroupMembers",
+      const { data } = await axios.get("/api/getGroupMembers",
         {
           params: { groupID: currentGroup.Group_ID },
           headers: {
@@ -82,7 +82,7 @@ const GroupSettings = () => {
     }
 
     try {
-      const { data } = await axios.post("http://localhost:3000/inviteByEmail", {
+      const { data } = await axios.post("/api/inviteByEmail", {
         groupID: currentGroup?.Group_ID,
         userEmail: inviteData.userEmail,
       });
@@ -116,7 +116,7 @@ const GroupSettings = () => {
     try {
       const newState = !isGroupActive;
   
-      await axios.post("http://localhost:3000/changeGroupState",
+      await axios.post("/api/changeGroupState",
         {
           groupID: currentGroup?.Group_ID,
           newState,

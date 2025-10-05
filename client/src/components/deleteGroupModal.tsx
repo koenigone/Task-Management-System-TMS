@@ -44,7 +44,7 @@ const DeleteGroupModal: React.FC<DeleteGroupModalProps> = ({
     setError(null);
 
     try {
-      const response = await axios.post("http://localhost:3000/deleteGroup", { groupID: groupId });
+      const response = await axios.post("/api/deleteGroup", { groupID: groupId });
 
       if (response.data.message) {
         toast.success(response.data.message);

@@ -108,7 +108,7 @@ const AddTaskModal = ({
     }
 
     try {
-      const { data } = await axios.post("http://localhost:3000/createTask",
+      const { data } = await axios.post("/api/createTask",
         {
           listID,
           taskDesc: taskData.taskDesc,

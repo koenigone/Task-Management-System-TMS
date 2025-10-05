@@ -82,7 +82,7 @@ const Navigation = () => {
   const handleSignOut = async () => { // handle the sign out
     setIsSigningOut(true);
     try {
-      await axios.post("http://localhost:3000/signOutUser", {}, { withCredentials: true });
+      await axios.post("/api/signOutUser", {}, { withCredentials: true });
       navigate("/login");
     } catch (error) {
       toast.error("Sign out failed");
