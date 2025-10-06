@@ -64,7 +64,7 @@ const TaskDetailsModal = ({
   const handleMarkAsComplete = async (taskID: number) => {
     setIsTaskLoading(true);
     try {
-      const response = await axios.post("/api/markTaskAsComplete", { taskID }, {
+      const response = await axios.post("/markTaskAsComplete", { taskID }, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
@@ -99,7 +99,7 @@ const TaskDetailsModal = ({
     setIsDeleting(true);
     try {
       const response = await axios.post(
-        "/api/deleteTaskList",
+        "/deleteTaskList",
         { listID: currentTaskList.List_ID }
       );
       
@@ -122,7 +122,7 @@ const TaskDetailsModal = ({
     setIsLoadingMembers(true);
     try {
       const { data } = await axios.get(
-        "/api/getGroupMembers",
+        "/getGroupMembers",
         {
           params: { groupID: currentGroup.Group_ID },
           headers: {
@@ -142,7 +142,7 @@ const TaskDetailsModal = ({
     if (!currentTaskList?.List_ID) return;
 
     try {
-      const response = await axios.post("/api/leaveTaskList", { listID: currentTaskList.List_ID }, {
+      const response = await axios.post("/leaveTaskList", { listID: currentTaskList.List_ID }, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },

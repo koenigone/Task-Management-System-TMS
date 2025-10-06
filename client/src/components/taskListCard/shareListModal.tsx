@@ -51,7 +51,7 @@ const ShareTaskListModal: React.FC<ShareTaskListProps> = ({
     }
 
     try {
-      const { data } = await axios.post("/api/inviteByEmail",
+      const { data } = await axios.post("/inviteByEmail",
         { 
           listID,
           userEmail

@@ -39,7 +39,7 @@ const Invites = () => {
   const fetchInvites = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get("http://localhost:3000/getInvites", {
+      const response = await axios.get("/getInvites", {
         withCredentials: true,
       });
       setGetInvitesData(response.data.invites);
@@ -56,7 +56,7 @@ const Invites = () => {
 
   const handleAccept = async (inviteId: number, listID: number, groupID: number) => { // handle the accept invite
     try {
-      const response = await axios.post("http://localhost:3000/acceptInvite",
+      const response = await axios.post("/acceptInvite",
         { inviteId, listID, groupID },
         { withCredentials: true }
       );
@@ -79,7 +79,7 @@ const Invites = () => {
 
   const handleReject = async (inviteId: number) => {
     try {
-      const response = await axios.post("http://localhost:3000/denyInvite",
+      const response = await axios.post("/denyInvite",
         { inviteId },
         { withCredentials: true }
       );

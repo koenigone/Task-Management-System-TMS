@@ -60,7 +60,7 @@ const TaskListCard = ({ Group_ID }: TaskListCardProps) => {
   const fetchTaskLists = async () => { // retrieve task lists function
     setIsLoading(true);
     try { // retrieve task lists with axios
-      const response = await axios.get("/api/getTaskList", {
+      const response = await axios.get("/getTaskList", {
         withCredentials: true,
         params: Group_ID ? { Group_ID } : {},
       });

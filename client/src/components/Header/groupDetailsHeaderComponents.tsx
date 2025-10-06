@@ -34,7 +34,7 @@ const GroupDetailsHeaderComponents = ({ showLeaveButton = false }: GroupDetailsH
 
   const handleLeaveGroup = async () => { // handle the leave group  
     try {
-      await axios.post(`/api/leaveGroup`, { groupId: GroupID });
+      await axios.post(`/leaveGroup`, { groupId: GroupID });
       toast.success("Left group successfully");
       onClose();
       navigate("/JoinedGroups"); // navigate to the joined groups page

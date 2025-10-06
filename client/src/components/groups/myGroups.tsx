@@ -35,7 +35,7 @@ const MyGroups = () => {
   const fetchMyGroups = async () => { // retreive the groups
     setIsLoading(true);
     try {
-      const { data } = await axios.get("http://localhost:3000/getMyGroups", { // get the groups using axios
+      const { data } = await axios.get("/getMyGroups", { // get the groups using axios
         withCredentials: true,
       });
       setMyGroups(data.groups || []);

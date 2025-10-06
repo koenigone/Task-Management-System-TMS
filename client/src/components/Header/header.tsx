@@ -26,7 +26,7 @@ const Header = () => {
     if (location.pathname.includes("/GroupDetails/") && GroupID && user) {
       const checkGroupOwnership = async () => {
         try {
-          const response = await axios.get(`/api/getGroup/${GroupID}`); // get the group using axios
+          const response = await axios.get(`/getGroup/${GroupID}`); // get the group using axios
           if (response.data.group) {
             setIsGroupOwner(response.data.group.User_ID === user.id); // set the group owner if the user is the owner of the group
           } else {

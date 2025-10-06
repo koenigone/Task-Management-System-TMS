@@ -53,7 +53,7 @@ const AssignToGroupMembers: React.FC<AssignToGroupMembersProps> = ({
     }
 
     try { // assign the task list to the member
-      const { data } = await axios.post("/api/assignTaskListToMember",
+      const { data } = await axios.post("/assignTaskListToMember",
         { 
           listID: selectedTaskList.List_ID,
           userID,
