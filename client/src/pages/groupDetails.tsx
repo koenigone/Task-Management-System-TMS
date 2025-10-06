@@ -29,7 +29,7 @@ const GroupDetails = () => {
     const fetchGroupDetails = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`http://localhost:3000/getGroup/${GroupID}`);
+        const response = await axios.get(`/getGroup/${GroupID}`);
         
         if (response.data.group) {
           setGroup(response.data.group);
